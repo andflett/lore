@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — warm earthy dark fantasy (see lorekeeper-spec.md)
+   ═══════════════════════════════════════════════════════════════ */
+@theme {
+  --color-void: #080807;
+  --color-void-0: #090807;
+
+  /* Stone surfaces */
+  --color-stone-s0: #0f0e0c;
+  --color-stone-s1: #161410;
+  --color-stone-s2: #1e1c18;
+  --color-stone-s3: #272420;
+  --color-stone-light: #525250;
+
+  /* Bronze / gold — borders and highlights only */
+  --color-gold-b0: #1c1408;
+  --color-gold-b1: #342408;
+  --color-gold-b2: #5e3c0c;
+  --color-gold-b3: #8c6010;
+  --color-gold: #c8921a;
+  --color-gold-bright: #dca830;
+  --color-gold-text: #f0d070;
+
+  /* Text — stone grays */
+  --color-text-dim: #706c64;
+  --color-text-t0: #948e84;
+  --color-text-t1: #bab6aa;
+  --color-text-t2: #d8d4c8;
+  --color-text-t3: #eeeae0;
+
+  /* Accents */
+  --color-assistant: #4a3418;
+  --color-assistant-bg: #141008;
+  --color-blood-0: #3c0a0a;
+  --color-blood-1: #7a1c1c;
+  --color-blood: #b83030;
+  --color-verdant-0: #0a1408;
+  --color-verdant: #2a5020;
+
+  --font-ui: var(--font-ui), "Palatino Linotype", serif;
+  --font-body: var(--font-body), Georgia, serif;
+}
+
+html {
+  font-size: 14px;
+}
+
+body {
+  background-color: var(--color-void);
+  color: var(--color-text-t2);
+  font-family: var(--font-body);
+}
+
+/* Cinzel chrome labels */
+.font-ui {
+  font-family: var(--font-ui);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ── Scrollbars ─────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-stone-s0);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border: 1px solid var(--color-stone-s0);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-bright);
+}
+
+/* ── Messages ornate overlay ────────────────────────────────
+   Paints a CC0 ornate pattern behind the chat messages region.
+   Drop a tileable PNG/SVG at /public/textures/sidebar-pattern.png
+   (the filename is kept for backwards-compat — feel free to rename
+   the asset + this rule together). Tune opacity / size below.
+   Falls back gracefully if the file is absent. */
+.message-overlay {
+  position: relative;
+  isolation: isolate;
+}
+.message-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("/textures/sidebar-pattern.png");
+  background-repeat: repeat;
+  background-size: 100% 100%;
+  /* Blend the pattern into the stone surface beneath rather than sitting
+     on top of it. Multiply darkens where the pattern is dark and leaves
+     light areas alone — gives a "carved into the wall" feel. Tune
+     opacity to taste. */
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+}
+
+/* ── Game icon (CSS-mask, colourable via currentColor) ───────── */
+.game-icon {
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
