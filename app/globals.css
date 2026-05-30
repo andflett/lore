@@ -33,9 +33,14 @@
   /* Accents */
   --color-assistant: #4a3418;
   --color-assistant-bg: #141008;
+  /* Blood — mirrors the gold tier structure: dark bg → mid border → base →
+     bright text. Use --color-blood-text for body/label text on dark surfaces;
+     --color-blood remains the mid accent for borders and decorative strokes. */
   --color-blood-0: #3c0a0a;
   --color-blood-1: #7a1c1c;
   --color-blood: #b83030;
+  --color-blood-bright: #e25555;
+  --color-blood-text: #f5b0b0;
   --color-verdant-0: #0a1408;
   --color-verdant: #2a5020;
 

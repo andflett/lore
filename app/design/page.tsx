@@ -9,7 +9,7 @@ import { MessageBubble } from "@/components/chat/MessageBubble";
 import { DesignFormPreview } from "./DesignFormPreview";
 
 export const metadata: Metadata = {
-  title: "Hearthnote — Design System",
+  title: "Design System",
 };
 
 const SWATCHES: { label: string; value: string; varName: string }[] = [
@@ -28,7 +28,11 @@ const SWATCHES: { label: string; value: string; varName: string }[] = [
   { label: "text t1", value: "#bab6aa", varName: "--color-text-t1" },
   { label: "text t2", value: "#d8d4c8", varName: "--color-text-t2" },
   { label: "text t3", value: "#eeeae0", varName: "--color-text-t3" },
+  { label: "blood 0", value: "#3c0a0a", varName: "--color-blood-0" },
+  { label: "blood 1", value: "#7a1c1c", varName: "--color-blood-1" },
   { label: "blood", value: "#b83030", varName: "--color-blood" },
+  { label: "blood bright", value: "#e25555", varName: "--color-blood-bright" },
+  { label: "blood text", value: "#f5b0b0", varName: "--color-blood-text" },
   { label: "verdant", value: "#2a5020", varName: "--color-verdant" },
 ];
 
@@ -77,7 +81,7 @@ export default function DesignPage() {
             className="font-ui text-[22px] uppercase text-text-t3"
             style={{ letterSpacing: "0.2em" }}
           >
-            Hearthnote
+            Wyrdscribe
           </h1>
           <p className="mt-1 text-text-t0">Design system — kitchen sink (dev only)</p>
         </header>

@@ -1,3 +1,5 @@
+import type { QuestionKind } from "./agent/schemas";
+
 export interface Game {
   id: string;
   name: string;
@@ -61,6 +63,10 @@ export interface Message {
   role: "user" | "assistant";
   content: string;
   sources?: SearchSource[];
+  // Question classification from the decide node. Used by the UI to decide
+  // whether an unsourced answer deserves a "no sources" badge (game-content
+  // kinds do; meta/other don't). Optional — older messages won't have it.
+  kind?: QuestionKind;
   timestamp: number;
 }
 

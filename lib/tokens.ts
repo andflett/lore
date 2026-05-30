@@ -24,5 +24,7 @@ export const COLORS = {
   red0: "#3c0a0a",
   red1: "#7a1c1c",
   red2: "#b83030",
+  red3: "#e25555", // blood bright
+  redText: "#f5b0b0", // blood text — high contrast for danger labels
   grn1: "#2a5020",
 } as const;

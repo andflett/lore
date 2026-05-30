@@ -54,6 +54,10 @@ export function createAgentStream(input: Input): ReadableStream<Uint8Array> {
           });
         }
 
+        if (finalState.kind) {
+          emit({ type: "meta", kind: finalState.kind });
+        }
+
         emit({ type: "progress", step: "generate", message: "Writing answer…" });
 
         // Node updates don't echo the input fields, so merge them back in for generate.

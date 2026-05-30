@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import type { Game, Playthrough, SearchSource } from "@/lib/types";
 import type { AgentEvent } from "@/lib/agent/events";
+import type { QuestionKind } from "@/lib/agent/schemas";
 
 type Turn = { role: "user" | "assistant"; content: string };
 
@@ -16,6 +17,7 @@ export interface UseAgentState {
   steps: AgentStep[];
   text: string;
   sources: SearchSource[];
+  kind: QuestionKind | null;
   error: string | null;
 }
 
@@ -24,6 +26,7 @@ const INITIAL: UseAgentState = {
   steps: [],
   text: "",
   sources: [],
+  kind: null,
   error: null,
 };
 
@@ -36,7 +39,11 @@ export interface AskInput {
 }
 
 export interface UseAgentReturn extends UseAgentState {
-  ask: (input: AskInput) => Promise<{ text: string; sources: SearchSource[] }>;
+  ask: (input: AskInput) => Promise<{
+    text: string;
+    sources: SearchSource[];
+    kind: QuestionKind | null;
+  }>;
   cancel: () => void;
   reset: () => void;
 }
@@ -58,10 +65,11 @@ export function useAgent(): UseAgentReturn {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setState({ loading: true, steps: [], text: "", sources: [], error: null });
+    setState({ loading: true, steps: [], text: "", sources: [], kind: null, error: null });
 
     let finalText = "";
     let finalSources: SearchSource[] = [];
+    let finalKind: QuestionKind | null = null;
 
     try {
       const res = await fetch("/api/chat", {
@@ -107,6 +115,10 @@ export function useAgent(): UseAgentReturn {
               finalSources = event.sources;
               setState((s) => ({ ...s, sources: event.sources }));
               break;
+            case "meta":
+              finalKind = event.kind;
+              setState((s) => ({ ...s, kind: event.kind }));
+              break;
             case "token":
               finalText += event.text;
               setState((s) => ({ ...s, text: s.text + event.text }));
@@ -128,7 +140,7 @@ export function useAgent(): UseAgentReturn {
       abortRef.current = null;
     }
 
-    return { text: finalText, sources: finalSources };
+    return { text: finalText, sources: finalSources, kind: finalKind };
   }, []);
 
   return { ...state, ask, cancel, reset };

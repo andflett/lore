@@ -1,7 +1,7 @@
 export function UserMessage({ content }: { content: string }) {
   return (
     <div className="flex flex-row-reverse items-start">
-      <div className="max-w-[90%] sm:max-w-[78%]">
+      <div className="max-w-[80%] sm:max-w-[60%]">
         <div
           className="border border-gold-b2 border-r-[3px] border-r-gold-b3 bg-stone-s2 px-3.5 py-2.5 text-[15px] leading-snug text-text-t2"
           style={{

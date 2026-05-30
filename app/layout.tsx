@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cinzel, Crimson_Text } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/shared/Providers";
@@ -15,8 +15,40 @@ const crimsonText = Crimson_Text({
 });
 
 export const metadata: Metadata = {
-  title: "Hearthnote",
-  description: "A gaming companion that remembers your playthrough.",
+  metadataBase: new URL("https://wyrdscribe.app"),
+  title: {
+    default: "Wyrdscribe",
+    template: "%s · Wyrdscribe",
+  },
+  description:
+    "A local-first gaming companion that remembers your playthrough — searches the wikis, cites its sources, keeps spoilers in check.",
+  applicationName: "Wyrdscribe",
+  authors: [{ name: "Andrew Flett" }],
+  keywords: [
+    "gaming companion",
+    "RPG",
+    "playthrough notes",
+    "wiki search",
+    "local-first",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "Wyrdscribe",
+    title: "Wyrdscribe",
+    description:
+      "A local-first gaming companion that remembers your playthrough.",
+    url: "https://wyrdscribe.app",
+  },
+  twitter: {
+    card: "summary",
+    title: "Wyrdscribe",
+    description:
+      "A local-first gaming companion that remembers your playthrough.",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0f0e0c",
 };
 
 export default function RootLayout({

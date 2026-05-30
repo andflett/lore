@@ -81,9 +81,12 @@ export function buildAnswerPrompt(
       "- Do not invent citation numbers. Only use numbers that appear in the provided results.",
     );
   } else {
+    // No search ran. Answer from training knowledge without any meta-commentary
+    // — the UI shows a small "unsourced" badge separately when the question
+    // was game-content. Don't apologise in prose.
     lines.push(
       "",
-      "- Answer from training knowledge and add this note at the end: \"(from training data — verify with a wiki if critical)\".",
+      "- Answer from training knowledge. Do not add disclaimers about your sources or training data — the UI handles that separately.",
     );
   }
 

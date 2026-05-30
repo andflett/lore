@@ -13,7 +13,7 @@ export function SectionLabel({ children, tone = "gold" }: Props) {
   return (
     <h3
       className={`font-ui mb-2 text-[9px] uppercase ${
-        tone === "blood" ? "text-blood" : "text-gold-text"
+        tone === "blood" ? "text-blood-text" : "text-gold-text"
       }`}
       style={{ letterSpacing: "0.14em" }}
     >

@@ -33,7 +33,7 @@ export function AppShell({
           {/* Mobile: the playthroughs toggle doubles as the brand glyph. */}
           <span className="md:hidden">
             <IconButton
-              icon="fireplace"
+              icon="quill-ink"
               label="Playthroughs"
               size="sm"
               tooltipAlign="start"
@@ -42,13 +42,13 @@ export function AppShell({
           </span>
           {/* Desktop: dedicated brand mark beside the wordmark. */}
           <span className="hidden items-center gap-2 md:flex">
-            <GameIcon name="fireplace" size={16} className="text-gold" />
+            <GameIcon name="quill-ink" size={16} className="text-gold" />
           </span>
           <span
             className="font-ui text-[11px] uppercase text-text-t3"
             style={{ letterSpacing: "0.2em" }}
           >
-            Hearthnote
+            Wyrdscribe
           </span>
         </div>
         <div className="flex items-center gap-2">{headerRight}</div>

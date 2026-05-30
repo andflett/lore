@@ -43,10 +43,10 @@ const VARIANTS: Record<Variant, { bg: string; border: string; borderB: string; s
   },
   danger: {
     bg: `linear-gradient(180deg, ${C.red0} 0%, #200808 100%)`,
-    border: `2px solid ${C.red1}`,
-    borderB: `3px solid ${C.red2}`,
-    shadow: `inset 0 1px 0 rgba(200,80,80,0.1), 0 0 0 1px ${C.b0}, 0 3px 10px rgba(0,0,0,0.7)`,
-    color: C.red2,
+    border: `2px solid ${C.red2}`,
+    borderB: `3px solid ${C.red3}`,
+    shadow: `inset 0 1px 0 rgba(226,85,85,0.18), 0 0 0 1px ${C.b0}, 0 3px 10px rgba(0,0,0,0.7)`,
+    color: C.redText,
   },
   default: {
     bg: `linear-gradient(180deg, ${C.s2} 0%, ${C.s0} 100%)`,

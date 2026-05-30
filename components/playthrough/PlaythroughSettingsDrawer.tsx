@@ -149,11 +149,11 @@ export function PlaythroughSettingsDrawer({
             <SourcesSection game={game} />
           </section>
 
-          <Divider color="var(--color-blood-1)" />
+          <Divider color="var(--color-blood)" />
 
           <section>
             <SectionLabel tone="blood">Danger zone</SectionLabel>
-            <p className="mb-2 text-[13px] text-text-t0">
+            <p className="mb-2 text-[13px] text-text-t2">
               Deleting this playthrough removes all its sessions and chat history. This can&apos;t be undone.
             </p>
             <Btn variant="danger" size="sm" onClick={() => setDeleteOpen(true)}>

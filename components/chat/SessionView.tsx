@@ -36,7 +36,7 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
   const [proposals, setProposals] = useState<ProposedMemoryUpdate[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<ChatInputHandle>(null);
-  const { ask, loading, steps, text, sources, error } = useAgent();
+  const { ask, loading, steps, text, sources, kind, error } = useAgent();
 
   const send = async (query: string) => {
     if (loading || readOnly) return;
@@ -47,7 +47,7 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
     const priorMessages = messages.map((m) => ({ role: m.role, content: m.content }));
 
     try {
-      const { text: finalText, sources: finalSources } = await ask({
+      const { text: finalText, sources: finalSources, kind: finalKind } = await ask({
         query,
         priorMessages,
         game,
@@ -62,6 +62,7 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
           role: "assistant",
           content: cleanedText,
           sources: finalSources.length ? finalSources : undefined,
+          kind: finalKind ?? undefined,
         });
         if (found.length) setProposals((p) => [...p, ...found]);
       }
@@ -131,19 +132,25 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
                 role={m.role}
                 content={m.content}
                 sources={m.sources}
+                kind={m.kind}
               />
             ))}
             {loading && (
               <div className="space-y-2">
                 <AgentProgress steps={steps} />
                 {streamingText.length > 0 && (
-                  <MessageBubble role="assistant" content={streamingText} sources={sources} />
+                  <MessageBubble
+                    role="assistant"
+                    content={streamingText}
+                    sources={sources}
+                    kind={kind ?? undefined}
+                  />
                 )}
               </div>
             )}
             {error && !loading && (
               <div
-                className="border-2 border-blood-1 px-3 py-2 text-[13px] text-blood"
+                className="border-2 border-blood bg-blood-0 px-3 py-2 text-[13px] text-blood-text"
                 role="alert"
               >
                 {error}

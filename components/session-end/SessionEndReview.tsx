@@ -108,7 +108,7 @@ export function SessionEndReview({
       {loading ? (
         <p className="text-[14px] text-text-dim">Reviewing this session…</p>
       ) : error ? (
-        <p className="text-[14px] text-blood">{error}</p>
+        <p className="text-[14px] text-blood-text">{error}</p>
       ) : (
         <div className="space-y-4">
           <section>

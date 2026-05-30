@@ -80,6 +80,16 @@ These three are the user's standing preferences (set early; non-negotiable):
 - **For destructive actions**, use `Btn variant="danger"` inside a `Modal`
   for confirmation. Two-step pattern: open the modal, then click "Delete
   forever".
+- **Blood palette has tiers, mirroring gold.** For any danger / error UI:
+  - `text-blood-text` (#f5b0b0) — **label and body text**. This is the only
+    text colour that has enough contrast on dark stone. Do NOT use `text-blood`
+    for text — it's a mid accent, not a body colour.
+  - `border-blood` — borders on error alerts and danger surfaces.
+  - `bg-blood-0` — filled error/alert backgrounds.
+  - `text-blood` / `border-blood-1` — decorative accents (icons, hover states,
+    secondary strokes). Never the primary text colour.
+  - Error alert pattern: `border-2 border-blood bg-blood-0 text-blood-text` +
+    `role="alert"`.
 - **For section headings inside drawers/modals/panels**, use `SectionLabel`
   — small Cinzel caps, gold by default, `tone="blood"` for danger zones.
   Never hand-roll a Cinzel uppercase `<h3>` again.
