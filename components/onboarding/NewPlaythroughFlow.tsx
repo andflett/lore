@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { stoneSurface } from "@/lib/surfaces";
-import { createPlaythrough, ensureGame, listGames } from "@/lib/db";
+import { createPlaythrough, ensureGame, listGames, listPlaythroughs } from "@/lib/db";
 import { Panel } from "@/components/shared/Panel";
 import { Btn } from "@/components/shared/Btn";
 import { GameIcon } from "@/components/shared/GameIcon";
 import { OnboardingStep } from "./OnboardingStep";
+import { IntroStep } from "./IntroStep";
 import { GameNameField } from "@/components/playthrough/fields/GameNameField";
 import { PlaythroughNameField } from "@/components/playthrough/fields/PlaythroughNameField";
 import { CharacterFields } from "@/components/playthrough/fields/CharacterFields";
@@ -19,6 +20,12 @@ import { LocationField } from "@/components/playthrough/fields/LocationField";
 export function NewPlaythroughFlow() {
   const router = useRouter();
   const games = useLiveQuery(() => listGames(), [], []);
+  // Show the intro panel only on a truly fresh visit (no existing playthroughs).
+  // Returning users hitting /new explicitly want to start a new run — don't
+  // make them re-read the pitch.
+  const playthroughs = useLiveQuery(() => listPlaythroughs(), [], []);
+  const [introDismissed, setIntroDismissed] = useState(false);
+  const showIntro = playthroughs.length === 0 && !introDismissed;
   const [step, setStep] = useState(0);
   const [creating, setCreating] = useState(false);
 
@@ -90,32 +97,38 @@ export function NewPlaythroughFlow() {
     >
       <div className="w-[min(480px,100%)]">
         <Panel style={{ padding: 24 }}>
-          <div className="mb-5 flex items-center gap-2 text-gold-text">
-            <GameIcon name="dragon" size={18} />
-            <span
-              className="font-ui text-[11px] uppercase"
-              style={{ letterSpacing: "0.18em" }}
-            >
-              New Playthrough · {step + 1}/{steps.length}
-            </span>
-          </div>
+          {showIntro ? (
+            <IntroStep onBegin={() => setIntroDismissed(true)} />
+          ) : (
+            <>
+              <div className="mb-5 flex items-center gap-2 text-gold-text">
+                <GameIcon name="dragon" size={18} />
+                <span
+                  className="font-ui text-[11px] uppercase"
+                  style={{ letterSpacing: "0.18em" }}
+                >
+                  New Playthrough · {step + 1}/{steps.length}
+                </span>
+              </div>
 
-          {steps[step]}
+              {steps[step]}
 
-          <div className="mt-6 flex items-center justify-between">
-            <Btn variant="dim" size="sm" onClick={back} disabled={step === 0}>
-              Back
-            </Btn>
-            {isLast ? (
-              <Btn variant="confirm" size="sm" onClick={finish} disabled={creating || !gameName.trim()}>
-                <GameIcon name="check-mark" size={12} /> Begin
-              </Btn>
-            ) : (
-              <Btn variant="confirm" size="sm" onClick={next} disabled={!canAdvance}>
-                Next
-              </Btn>
-            )}
-          </div>
+              <div className="mt-6 flex items-center justify-between">
+                <Btn variant="dim" size="sm" onClick={back} disabled={step === 0}>
+                  Back
+                </Btn>
+                {isLast ? (
+                  <Btn variant="confirm" size="sm" onClick={finish} disabled={creating || !gameName.trim()}>
+                    <GameIcon name="check-mark" size={12} /> Begin
+                  </Btn>
+                ) : (
+                  <Btn variant="confirm" size="sm" onClick={next} disabled={!canAdvance}>
+                    Next
+                  </Btn>
+                )}
+              </div>
+            </>
+          )}
         </Panel>
       </div>
     </div>
