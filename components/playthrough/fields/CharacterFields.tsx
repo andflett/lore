@@ -26,14 +26,14 @@ export function CharacterFields({
         onChange={onNameChange}
         onBlur={onBlur}
         autoFocus={autoFocus}
-        placeholder="Character name (skip for now)"
+        placeholder="Character name"
         ariaLabel="Character name"
       />
       <TextField
         value={className}
         onChange={onClassChange}
         onBlur={onBlur}
-        placeholder="Class / build (skip for now)"
+        placeholder="Class or build"
         ariaLabel="Character class or build"
       />
     </div>
