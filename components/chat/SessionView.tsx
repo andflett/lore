@@ -13,7 +13,7 @@ import type {
   ProposedMemoryUpdate,
   Session,
 } from "@/lib/types";
-import { addMemoryBlock, appendMessage, getSession, updatePlaythrough } from "@/lib/db";
+import { addMemoryBlock, appendMessage, getSession } from "@/lib/db";
 import { stoneSurface } from "@/lib/surfaces";
 import { parseProposals } from "@/lib/parse-proposals";
 import { useAgent } from "@/hooks/useAgent";
@@ -113,10 +113,6 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
                     disabled={loading}
                     onSend={send}
                     size="hero"
-                    modelId={playthrough.modelId}
-                    onModelChange={(modelId) =>
-                      updatePlaythrough(playthrough.id, { modelId })
-                    }
                   />
                 </div>
               )}
@@ -175,10 +171,6 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
                   ref={inputRef}
                   disabled={loading}
                   onSend={send}
-                  modelId={playthrough.modelId}
-                  onModelChange={(modelId) =>
-                    updatePlaythrough(playthrough.id, { modelId })
-                  }
                 />
               </div>
             )}
