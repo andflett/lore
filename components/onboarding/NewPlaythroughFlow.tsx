@@ -92,8 +92,8 @@ export function NewPlaythroughFlow() {
 
   return (
     <div
-      className="flex min-h-screen items-center justify-center p-4"
-      style={stoneSurface("mid")}
+      className="message-overlay flex min-h-screen items-center justify-center p-4"
+      style={stoneSurface("raised")}
     >
       <div className="w-[min(480px,100%)]">
         <Panel style={{ padding: 24 }}>
