@@ -117,7 +117,7 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
         onClick={() => setMemoryOpen(true)}
       />
       <IconButton
-        icon="quill-ink"
+        icon="scroll-unfurled"
         label="Settings"
         size="sm"
         tooltipSide="bottom"

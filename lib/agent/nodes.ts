@@ -72,9 +72,6 @@ export async function decideNode(
   const contextLines = [
     `Game: ${state.game.name}`,
   ];
-  if (pt.currentLocation) {
-    contextLines.push(`Player's current progress: ${pt.currentLocation}`);
-  }
   if (pt.playstyleNotes) {
     contextLines.push(`Player preferences: ${pt.playstyleNotes}`);
   }
