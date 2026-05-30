@@ -9,14 +9,22 @@ interface Props {
   citedIndices: number[];
 }
 
-// Collapsible list of cited sources below an assistant message.
+// Collapsible list of sources below an assistant message. Prefer the sources
+// the model cited inline ([n]); but if it retrieved sources and neglected to
+// cite them (weaker models under-cite), still surface what it consulted rather
+// than hiding the grounding entirely.
 export function SourcesFooter({ sources, citedIndices }: Props) {
   const [open, setOpen] = useState(false);
-  const shown = sources
-    .filter((s) => citedIndices.includes(s.index))
+  const cited = sources.filter((s) => citedIndices.includes(s.index));
+  const shown = (cited.length > 0 ? cited : sources)
+    .slice()
     .sort((a, b) => a.index - b.index);
 
   if (shown.length === 0) return null;
+
+  const noun = cited.length > 0 ? "Source" : "Source consulted";
+  const label =
+    shown.length === 1 ? noun : cited.length > 0 ? "Sources" : "Sources consulted";
 
   return (
     <div className="mt-3 border-t border-gold-b1 pt-2">
@@ -30,7 +38,7 @@ export function SourcesFooter({ sources, citedIndices }: Props) {
           className="font-ui text-[9px] uppercase"
           style={{ letterSpacing: "0.12em" }}
         >
-          {shown.length} {shown.length === 1 ? "Source" : "Sources"}
+          {shown.length} {label}
         </span>
         <span className="text-[9px] text-gold-b3">{open ? "▾" : "▸"}</span>
       </button>
