@@ -82,11 +82,10 @@ body {
 }
 
 /* ── Messages ornate overlay ────────────────────────────────
-   Paints a CC0 ornate pattern behind the chat messages region.
-   Drop a tileable PNG/SVG at /public/textures/sidebar-pattern.png
-   (the filename is kept for backwards-compat — feel free to rename
-   the asset + this rule together). Tune opacity / size below.
-   Falls back gracefully if the file is absent. */
+   Paints a CC0 ornate pattern behind the chat messages region from
+   /public/textures/sidebar-pattern.webp (stretched to fill, not tiled).
+   It's preloaded in layout.tsx so it paints with the rest of the UI.
+   Tune opacity / size below. Falls back gracefully if the file is absent. */
 .message-overlay {
   position: relative;
   isolation: isolate;
@@ -97,8 +96,8 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: url("/textures/sidebar-pattern.png");
-  background-repeat: repeat;
+  background-image: url("/textures/sidebar-pattern.webp");
+  background-repeat: no-repeat;
   background-size: 100% 100%;
   /* Blend the pattern into the stone surface beneath rather than sitting
      on top of it. Multiply darkens where the pattern is dark and leaves
@@ -106,16 +105,4 @@ body {
      opacity to taste. */
   opacity: 0.35;
   mix-blend-mode: multiply;
-}
-
-/* ── Game icon (CSS-mask, colourable via currentColor) ───────── */
-.game-icon {
-  display: inline-block;
-  background-color: currentColor;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
 }

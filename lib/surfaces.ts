@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-const STONE_URL = "url('/textures/rough-stone.jpg')";
+const STONE_URL = "url('/textures/rough-stone.webp')";
 
 export type Elevation = "raised" | "mid" | "recessed" | "deep";
 

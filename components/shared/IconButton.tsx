@@ -3,9 +3,10 @@
 import { Btn } from "./Btn";
 import { GameIcon } from "./GameIcon";
 import { Tooltip } from "./Tooltip";
+import type { IconName } from "@/lib/icon-paths";
 
 interface Props {
-  icon: string;
+  icon: IconName;
   onClick?: () => void;
   variant?: "metal" | "confirm" | "dim" | "danger" | "default";
   size?: "sm" | "md" | "lg";

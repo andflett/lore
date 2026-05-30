@@ -3,8 +3,9 @@
 import { motion } from "motion/react";
 import type { AgentStep } from "@/hooks/useAgent";
 import { GameIcon } from "@/components/shared/GameIcon";
+import type { IconName } from "@/lib/icon-paths";
 
-const STEP_ICON: Record<string, string> = {
+const STEP_ICON: Record<string, IconName> = {
   decide: "crystal-ball",
   search: "magnifying-glass",
   assess: "scroll-unfurled",
