@@ -24,7 +24,7 @@ const STARTERS = [
 // tap to seed the input.
 export function EmptySessionState({ gameName, onPick }: Props) {
   return (
-    <div className="mx-auto mt-12 flex max-w-md flex-col items-center gap-4 text-center">
+    <div className="mx-auto flex max-w-md flex-col items-center gap-4 text-center">
       <GameIcon name="crystal-ball" size={32} className="text-gold-text" />
       <p className="text-[15px] text-text-t1">
         Ask anything about{" "}

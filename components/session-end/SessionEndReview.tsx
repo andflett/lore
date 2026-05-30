@@ -212,7 +212,7 @@ export function SessionEndReview({
               Cancel
             </Btn>
             <Btn variant="confirm" size="sm" onClick={confirm} disabled={saving}>
-              <GameIcon name="moon-bats" size={12} /> End Session
+              <GameIcon name="moon-bats" size={12} /> End &amp; Start New
             </Btn>
           </div>
         </div>

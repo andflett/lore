@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import Link from "next/link";
 import {
   createSession,
   getPlaythrough,
@@ -14,6 +15,7 @@ import { setLastPlaythrough } from "@/lib/storage";
 import { AppShell } from "@/components/shell/AppShell";
 import { Spinner } from "@/components/shared/Spinner";
 import { IconButton } from "@/components/shared/IconButton";
+import { GameIcon } from "@/components/shared/GameIcon";
 import { SessionView } from "@/components/chat/SessionView";
 import { MemoryPanel } from "@/components/memory/MemoryPanel";
 import { SessionEndReview } from "@/components/session-end/SessionEndReview";
@@ -30,14 +32,18 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
     sessionId,
   );
   const [resolving, setResolving] = useState(!sessionId);
+  const [playthroughLoaded, setPlaythroughLoaded] = useState(false);
+  const [fatalError, setFatalError] = useState<string | null>(null);
   const [memoryOpen, setMemoryOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
 
-  const playthrough = useLiveQuery(
-    () => getPlaythrough(playthroughId),
-    [playthroughId],
-  );
+  const playthrough = useLiveQuery(async () => {
+    const p = await getPlaythrough(playthroughId);
+    setPlaythroughLoaded(true);
+    return p;
+  }, [playthroughId]);
+
   const game = useLiveQuery(
     () => (playthrough ? db.games.get(playthrough.gameId) : undefined),
     [playthrough?.gameId],
@@ -56,12 +62,19 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
     if (sessionId || !playthrough) return;
     let cancelled = false;
     (async () => {
-      const sessions = await listSessions(playthrough.id);
-      const todays = sessions.find((s) => isToday(s.startedAt) && !s.endedAt);
-      const resumed = todays ?? (await createSession(playthrough.id));
-      if (!cancelled) {
-        setActiveSessionId(resumed.id);
-        setResolving(false);
+      try {
+        const sessions = await listSessions(playthrough.id);
+        const todays = sessions.find((s) => isToday(s.startedAt) && !s.endedAt);
+        const resumed = todays ?? (await createSession(playthrough.id));
+        if (!cancelled) {
+          setActiveSessionId(resumed.id);
+          setResolving(false);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setFatalError(e instanceof Error ? e.message : "Failed to load session");
+          setResolving(false);
+        }
       }
     })();
     return () => {
@@ -75,7 +88,9 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
     setActiveSessionId(s.id);
   };
 
-  if (!playthrough || !game || resolving || !session) {
+  if (fatalError) return <FatalError message={fatalError} />;
+  if (playthroughLoaded && !playthrough) return <FatalError message="This playthrough could not be found." />;
+  if (!playthroughLoaded || !game || resolving || !session) {
     return <Spinner label="Loading playthrough…" />;
   }
 
@@ -105,23 +120,8 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
         size="sm"
         tooltipSide="bottom"
         tooltipAlign="end"
-        onClick={startNewSession}
+        onClick={isPast ? startNewSession : () => setEndOpen(true)}
       />
-      {!isPast && (
-        <>
-          {/* Thin hairline separates primary trio from contextual/destructive end-session */}
-          <span aria-hidden className="mx-1 h-5 w-px bg-gold-b1" />
-          <IconButton
-            icon="moon-bats"
-            label="End session"
-            size="sm"
-            variant="dim"
-            tooltipSide="bottom"
-        tooltipAlign="end"
-            onClick={() => setEndOpen(true)}
-          />
-        </>
-      )}
     </>
   );
 
@@ -161,5 +161,20 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
         session={session}
       />
     </AppShell>
+  );
+}
+
+function FatalError({ message }: { message: string }) {
+  return (
+    <div className="flex h-[100dvh] flex-col items-center justify-center gap-4 px-6 text-center">
+      <GameIcon name="cancel" size={24} className="text-blood-text" />
+      <p className="text-[14px] text-text-t1">{message}</p>
+      <Link
+        href="/"
+        className="flex items-center gap-1.5 text-[13px] text-gold-text underline-offset-2 hover:underline"
+      >
+        <GameIcon name="arrow-scope" size={12} /> Back to home
+      </Link>
+    </div>
   );
 }

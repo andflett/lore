@@ -7,7 +7,6 @@ import {
   addMemoryBlock,
   removeMemoryBlock,
   updateMemoryBlock,
-  updatePlaythrough,
 } from "@/lib/db";
 import { Drawer } from "@/components/shared/Drawer";
 import { Divider } from "@/components/shared/Divider";
@@ -17,7 +16,6 @@ import { SelectField } from "@/components/shared/SelectField";
 import { TextAreaField } from "@/components/shared/TextAreaField";
 import { SectionLabel } from "@/components/shared/SectionLabel";
 import { MemoryBlockRow } from "./MemoryBlockRow";
-import { ModelPicker } from "./ModelPicker";
 
 interface Props {
   open: boolean;
@@ -40,12 +38,6 @@ export function MemoryPanel({ open, onClose, playthrough }: Props) {
 
   return (
     <Drawer open={open} onClose={onClose} title="Playthrough Memory">
-      <div className="mb-4">
-        <ModelPicker
-          value={playthrough.modelId}
-          onChange={(modelId) => updatePlaythrough(playthrough.id, { modelId })}
-        />
-      </div>
       <Divider />
 
       <div className="mt-4 space-y-4">

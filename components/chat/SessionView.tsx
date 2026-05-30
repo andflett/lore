@@ -94,14 +94,13 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
   const isEmpty = messages.length === 0 && !loading;
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col">
+    <div className="relative flex h-full min-h-0 flex-col" style={stoneSurface("raised")}>
       <div
         ref={scrollRef}
         className="message-overlay flex-1 min-h-0 overflow-y-auto"
-        style={stoneSurface("raised")}
       >
         {isEmpty ? (
-          <div className="flex h-full flex-col items-center justify-center px-4 py-6 sm:px-6">
+          <div className="flex min-h-full flex-col items-center justify-center px-4 py-6 sm:px-6">
             <div className="flex w-full max-w-2xl flex-col items-center gap-6">
               <EmptySessionState
                 gameName={game.name}
