@@ -6,6 +6,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
 import { EmptySessionState } from "./EmptySessionState";
 import type { ChatInputHandle } from "./ChatInput";
+import { Btn } from "@/components/shared/Btn";
 import { GameIcon } from "@/components/shared/GameIcon";
 import type {
   Game,
@@ -21,6 +22,8 @@ import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { AgentProgress } from "./AgentProgress";
 import { MemoryProposalToast } from "@/components/memory/MemoryProposalToast";
+
+const STARTERS = ["Where do I find ", "How do I beat ", "What's a good build for "];
 
 interface Props {
   game: Game;
@@ -102,25 +105,31 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
         {isEmpty ? (
           <div className="flex min-h-full flex-col items-center justify-center px-4 py-6 sm:px-6">
             <div className="flex w-full max-w-2xl flex-col items-center gap-6">
-              <EmptySessionState
-                gameName={game.name}
-                onPick={(t) => inputRef.current?.setDraft(t)}
-              />
+              <EmptySessionState gameName={game.name} />
               {!readOnly && (
-                <div className="w-full">
-                  <ChatInput
-                    ref={inputRef}
-                    disabled={loading}
-                    onSend={send}
-                    size="hero"
-                  />
-                </div>
+                <>
+                  <div className="w-full">
+                    <ChatInput
+                      ref={inputRef}
+                      disabled={loading}
+                      onSend={send}
+                      size="hero"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    {STARTERS.map((s) => (
+                      <Btn key={s} variant="dim" size="sm" onClick={() => inputRef.current?.setDraft(s)}>
+                        {s}
+                      </Btn>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           </div>
         ) : (
           // Bottom padding leaves room for the floating input/hint that sits over this scroll area.
-          <div className="space-y-4 px-4 py-4 pb-32 sm:px-6">
+          <div className="space-y-4 px-4 py-4 pb-48 sm:px-6">
             {messages.map((m) => (
               <MessageBubble
                 key={m.id}

@@ -29,15 +29,15 @@ export function AgentProgress({ steps, done }: Props) {
             initial={{ opacity: 0, x: -4 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.15 }}
-            className="flex items-center gap-2 text-[12px]"
+            className="flex items-center gap-2 text-[14px]"
           >
             <GameIcon
               name={STEP_ICON[s.step] ?? "scroll-unfurled"}
-              size={12}
-              className={isCurrent ? "text-gold-text" : "text-gold-b3"}
+              size={14}
+              className={isCurrent ? "text-gold" : "text-gold-b3"}
             />
             <span
-              className={isCurrent ? "italic text-text-t1" : "text-text-dim"}
+              className={isCurrent ? "italic text-text-t2" : "text-text-t1"}
             >
               {s.message}
             </span>
