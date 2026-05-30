@@ -50,8 +50,9 @@ export function IntroStep({ onBegin }: Props) {
           Your RPG Companion
         </h1>
         <p className="mt-3 text-[14px] leading-relaxed text-text-t2">
-          An AI companion that searches the wikis you trust, remembers your
-          playthrough, and answers without spoiling what you haven&apos;t seen yet.
+          An AI companion that searches the wikis you trust, remembers where
+          you are even when you don&apos;t, and answers without spoiling what
+          you haven&apos;t seen yet.
         </p>
       </header>
 

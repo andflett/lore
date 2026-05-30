@@ -92,10 +92,11 @@ export function NewPlaythroughFlow() {
 
   return (
     <div
-      className="message-overlay flex min-h-screen items-center justify-center p-4"
+      className="message-overlay h-[100dvh] overflow-y-auto"
       style={stoneSurface("raised")}
     >
-      <div className="w-[min(480px,100%)]">
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div className="w-[min(480px,100%)]">
         <Panel style={{ padding: 24 }}>
           {showIntro ? (
             <IntroStep onBegin={() => setIntroDismissed(true)} />
@@ -130,6 +131,7 @@ export function NewPlaythroughFlow() {
             </>
           )}
         </Panel>
+        </div>
       </div>
     </div>
   );
