@@ -19,7 +19,7 @@ export function NewPlaythroughFlow() {
   const router = useRouter();
   const games = useLiveQuery(() => listGames(), [], []);
   // Show the intro panel only on a truly fresh visit (no existing playthroughs).
-  // Returning users hitting /new explicitly want to start a new run — don't
+  // Returning users hitting /new explicitly want to start a new playthrough — don't
   // make them re-read the pitch.
   const playthroughs = useLiveQuery(() => listPlaythroughs(), [], []);
   const [introDismissed, setIntroDismissed] = useState(false);
@@ -38,10 +38,10 @@ export function NewPlaythroughFlow() {
   const finish = async () => {
     setCreating(true);
     const game = await ensureGame(gameName.trim());
-    // The run name is just a sidebar label, so derive it from the character
-    // rather than asking. Renamable later in Settings.
+    // The playthrough name is just a sidebar label, so derive it from the
+    // character rather than asking. Renamable later in Settings.
     const derivedName =
-      characterName.trim() || characterClass.trim() || "Run 1";
+      characterName.trim() || characterClass.trim() || "Playthrough 1";
     const pt = await createPlaythrough({
       gameId: game.id,
       name: derivedName,
