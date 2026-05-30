@@ -14,7 +14,7 @@ import type {
   ProposedMemoryUpdate,
   Session,
 } from "@/lib/types";
-import { addMemoryBlock, appendMessage, getSession } from "@/lib/db";
+import { addMemoryBlock, appendMessage, getSession, updatePlaythrough } from "@/lib/db";
 import { stoneSurface } from "@/lib/surfaces";
 import { parseProposals } from "@/lib/parse-proposals";
 import { useAgent } from "@/hooks/useAgent";
@@ -103,7 +103,7 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
         className="message-overlay flex flex-col flex-1 min-h-0 overflow-y-auto"
       >
         {isEmpty ? (
-          <div className="flex flex-1 flex-col items-center justify-center px-4 py-6 sm:px-6">
+          <div className="flex flex-1 flex-col items-center justify-center px-4 pb-24 pt-6 sm:px-6">
             <div className="flex w-full max-w-2xl flex-col items-center gap-6">
               <EmptySessionState gameName={game.name} />
               {!readOnly && (
@@ -114,6 +114,10 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
                       disabled={loading}
                       onSend={send}
                       size="hero"
+                      modelId={playthrough.modelId}
+                      onModelChange={(id) =>
+                        updatePlaythrough(playthrough.id, { modelId: id })
+                      }
                     />
                   </div>
                   <div className="flex w-full gap-2">
@@ -186,6 +190,10 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
                   ref={inputRef}
                   disabled={loading}
                   onSend={send}
+                  modelId={playthrough.modelId}
+                  onModelChange={(id) =>
+                    updatePlaythrough(playthrough.id, { modelId: id })
+                  }
                 />
               </div>
             )}

@@ -17,7 +17,7 @@ export function PlaystyleField({ value, onChange, onBlur, autoFocus }: Props) {
       onBlur={onBlur}
       autoFocus={autoFocus}
       rows={3}
-      placeholder="e.g. playing blind, prefer stealth, don't spoil main story"
+      placeholder="e.g. Hard mode, playing blind, prefer stealth, no main-story spoilers"
       ariaLabel="Playstyle and preferences"
     />
   );

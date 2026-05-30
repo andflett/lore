@@ -9,6 +9,7 @@ import {
   type Ref,
 } from "react";
 import { GameIcon } from "@/components/shared/GameIcon";
+import { ModelSwitcher } from "./ModelSwitcher";
 
 interface Props {
   onSend: (text: string) => void;
@@ -16,6 +17,9 @@ interface Props {
   ref?: Ref<ChatInputHandle>;
   // "hero" = large centred variant used by the empty state.
   size?: "default" | "hero";
+  // When supplied, an inline model switcher is shown in the footer.
+  modelId?: string;
+  onModelChange?: (id: string) => void;
 }
 
 // Imperative handle exposed to parents that need to seed the field — e.g. the
@@ -32,6 +36,8 @@ export function ChatInput({
   disabled,
   ref,
   size = "default",
+  modelId,
+  onModelChange,
 }: Props) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -95,8 +101,8 @@ export function ChatInput({
         rows={hero ? 2 : 1}
         placeholder={
           hero
-            ? "What do you want to know?"
-            : "Ask a follow-up…"
+            ? "Ask me anything about your run…"
+            : "What else can I help with?"
         }
         className={`w-full resize-none overflow-y-auto border-0 bg-transparent p-0 leading-relaxed text-text-t2 outline-none placeholder:text-text-dim ${
           hero
@@ -104,7 +110,12 @@ export function ChatInput({
             : "min-h-[28px] text-[16px] sm:text-[15px]"
         }`}
       />
-      <div className="flex items-center justify-end gap-2 pt-1.5">
+      <div className="flex items-center justify-between gap-2 pt-1.5">
+        {modelId && onModelChange ? (
+          <ModelSwitcher value={modelId} onChange={onModelChange} />
+        ) : (
+          <span />
+        )}
         <button
           type="submit"
           onClick={() => submit()}

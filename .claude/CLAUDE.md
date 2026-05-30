@@ -27,9 +27,6 @@ If you are a fresh Claude session picking this up, read these in order:
    common tweaks (add a model / icon / category, wipe IndexedDB).
 5. **[docs/known-issues.md](../docs/known-issues.md)** — Groq quirks (reasoning
    channel, tool-call failures, json_schema support), workarounds applied.
-6. **[docs/tightening-plan.md](../docs/tightening-plan.md)** — proposed visual
-   improvements (contrast, spacing, polish). Read before doing UI polish so
-   you don't redo work that's already queued.
 
 ## Reference
 

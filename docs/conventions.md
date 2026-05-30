@@ -90,6 +90,11 @@ These three are the user's standing preferences (set early; non-negotiable):
     secondary strokes). Never the primary text colour.
   - Error alert pattern: `border-2 border-blood bg-blood-0 text-blood-text` +
     `role="alert"`.
+- **For switching the chat model inline**, use `ModelSwitcher` — the compact
+  stone popover wired into `ChatInput`'s footer. Pass `modelId` +
+  `onModelChange` to `ChatInput` (it persists via `updatePlaythrough`) and it
+  shows in both the default and `hero` (empty-state) variants. Don't add a
+  separate model control next to a chat box.
 - **For section headings inside drawers/modals/panels**, use `SectionLabel`
   — small Cinzel caps, gold by default, `tone="blood"` for danger zones.
   Never hand-roll a Cinzel uppercase `<h3>` again.

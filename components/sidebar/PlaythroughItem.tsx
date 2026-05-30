@@ -28,28 +28,63 @@ export function PlaythroughItem({
     [],
   );
 
+  // Sessions worth counting: ones with content, plus the live one.
+  const sessionCount = sessions.filter(
+    (s) => s.messages.length > 0 || s.id === activeSessionId,
+  ).length;
+
   return (
     <li>
-      <div className="flex items-center gap-1">
+      <div
+        className={`group flex items-stretch border-l-2 transition-colors ${
+          active
+            ? "border-gold bg-gold-b0"
+            : "border-transparent hover:bg-stone-s2"
+        }`}
+      >
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? "Collapse" : "Expand"}
-          className="flex h-6 w-4 items-center justify-center text-gold-b3 hover:text-gold"
+          className="flex w-5 shrink-0 items-center justify-center text-gold-b3 hover:text-gold"
         >
           <span className="text-[10px]">{open ? "▾" : "▸"}</span>
         </button>
         <Link
           href={`/playthrough/${playthrough.id}`}
-          className={`flex flex-1 items-center gap-2 py-1 text-[14px] ${
-            active ? "text-gold-text" : "text-text-t1 hover:text-text-t3"
-          }`}
+          className="flex min-w-0 flex-1 items-center gap-2 py-1.5 pr-2"
         >
-          <GameIcon name="treasure-map" size={14} />
-          <span className="truncate">
-            {gameName}
-            <span className="text-text-dim"> — {playthrough.name}</span>
+          <GameIcon
+            name="treasure-map"
+            size={14}
+            className={`shrink-0 ${
+              active ? "text-gold" : "text-gold-b3 group-hover:text-gold"
+            }`}
+          />
+          <span className="flex min-w-0 flex-1 flex-col leading-tight">
+            <span
+              className={`truncate text-[14px] ${
+                active
+                  ? "text-gold-text"
+                  : "text-text-t1 group-hover:text-text-t3"
+              }`}
+            >
+              {gameName}
+            </span>
+            <span className="truncate text-[12px] text-text-dim">
+              {playthrough.name}
+            </span>
           </span>
+          {sessionCount > 0 && (
+            <span
+              className={`shrink-0 font-ui text-[10px] ${
+                active ? "text-gold-text" : "text-text-dim"
+              }`}
+              style={{ letterSpacing: "0.08em" }}
+            >
+              {sessionCount}
+            </span>
+          )}
         </Link>
       </div>
       {open && (

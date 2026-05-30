@@ -12,17 +12,17 @@ const PILLARS: Pillar[] = [
   {
     icon: "magnifying-glass",
     title: "Searches sources you choose",
-    body: "Point it at any wiki. Every answer is cited — you can see exactly where it looked.",
+    body: "Point it at the wikis you trust. Every answer is cited, so you can check its work.",
   },
   {
     icon: "open-book",
     title: "Remembers your run",
-    body: "Set your character, difficulty, and playstyle once. That context shapes every answer, and builds as you play.",
+    body: "Set up your character and how you play once. It fills in the rest as you go.",
   },
   {
     icon: "fireplace",
     title: "Private, no account needed",
-    body: "Everything stays in your browser. No sign-in, no cloud, no telemetry.",
+    body: "Everything stays in your browser. No sign-in, no cloud, no one over your shoulder.",
   },
 ];
 
@@ -33,8 +33,8 @@ interface Props {
 export function IntroStep({ onBegin }: Props) {
   return (
     <div>
-      <header className="mb-5 text-center">
-        <div className="mb-3 flex items-center justify-center gap-2 text-gold-text">
+      <header className="mb-4 text-center sm:mb-5">
+        <div className="mb-5 flex items-center justify-center gap-2 text-gold-text sm:mb-6">
           <GameIcon name="quill-ink" size={20} />
           <span
             className="font-ui text-[11px] uppercase"
@@ -50,14 +50,14 @@ export function IntroStep({ onBegin }: Props) {
           Your RPG Companion
         </h1>
         <p className="mt-3 text-[14px] leading-relaxed text-text-t2">
-          An AI companion that searches the wikis you trust, remembers your
-          playthrough, and answers without spoiling what you haven&apos;t seen yet.
+          It&apos;s read every wiki so you don&apos;t have to, and it knows
+          better than to spoil what&apos;s coming.
         </p>
       </header>
 
       <Divider />
 
-      <ul className="mt-5 space-y-4">
+      <ul className="mt-4 space-y-3 sm:mt-5 sm:space-y-4">
         {PILLARS.map((p) => (
           <li key={p.title} className="flex items-start gap-3">
             <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-gold-b2 bg-stone-s1 text-gold-text">
@@ -78,7 +78,7 @@ export function IntroStep({ onBegin }: Props) {
         ))}
       </ul>
 
-      <div className="mt-6 flex justify-center">
+      <div className="mt-5 flex justify-center sm:mt-6">
         <Btn variant="confirm" size="lg" onClick={onBegin}>
           <GameIcon name="quill-ink" size={14} />
           Get started

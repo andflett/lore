@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cinzel, Crimson_Text } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Providers } from "@/components/shared/Providers";
 
@@ -63,6 +64,7 @@ export default function RootLayout({
     >
       <body className="h-[100dvh] overflow-hidden">
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
