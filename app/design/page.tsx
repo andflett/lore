@@ -7,6 +7,7 @@ import { Btn } from "@/components/shared/Btn";
 import { GameIcon } from "@/components/shared/GameIcon";
 import { MessageBubble } from "@/components/chat/MessageBubble";
 import { DesignFormPreview } from "./DesignFormPreview";
+import { ICON_PATHS, type IconName } from "@/lib/icon-paths";
 
 export const metadata: Metadata = {
   title: "Design System",
@@ -36,27 +37,9 @@ const SWATCHES: { label: string; value: string; varName: string }[] = [
   { label: "verdant", value: "#2a5020", varName: "--color-verdant" },
 ];
 
-const ICONS = [
-  "open-book",
-  "treasure-map",
-  "crossroads",
-  "cowled",
-  "castle",
-  "quill-ink",
-  "dragon",
-  "sunrise",
-  "moon-bats",
-  "magnifying-glass",
-  "scroll-unfurled",
-  "check-mark",
-  "cancel",
-  "crystal-ball",
-  "light-bulb",
-  "halberd",
-  "broadsword",
-  "crescent-blade",
-  "dragon-head",
-];
+// Every registered icon, straight from the path registry so the sandbox can
+// never drift out of sync with what's actually available.
+const ICONS = Object.keys(ICON_PATHS) as IconName[];
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

@@ -117,7 +117,7 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
         onClick={() => setMemoryOpen(true)}
       />
       <IconButton
-        icon="quill-ink"
+        icon="scroll-unfurled"
         label="Settings"
         size="sm"
         tooltipSide="bottom"
@@ -185,7 +185,7 @@ function FatalError({ message }: { message: string }) {
         href="/"
         className="flex items-center gap-1.5 text-[13px] text-gold-text underline-offset-2 hover:underline"
       >
-        <GameIcon name="arrow-scope" size={12} /> Back to home
+        <GameIcon name="crossroads" size={12} /> Back to home
       </Link>
     </div>
   );

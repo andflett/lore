@@ -47,9 +47,7 @@ export function buildAnswerPrompt(
 
   if (playthrough.characterName) lines.push(`CHARACTER: ${playthrough.characterName}`);
   if (playthrough.characterClass) lines.push(`CLASS: ${playthrough.characterClass}`);
-  if (playthrough.difficulty) lines.push(`DIFFICULTY: ${playthrough.difficulty}`);
   if (playthrough.playstyleNotes) lines.push(`PREFERENCES: ${playthrough.playstyleNotes}`);
-  if (playthrough.currentLocation) lines.push(`CURRENT LOCATION: ${playthrough.currentLocation}`);
 
   const memory =
     playthrough.memory.length > 0

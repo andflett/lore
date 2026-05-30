@@ -1,9 +1,10 @@
 import { Btn } from "@/components/shared/Btn";
 import { GameIcon } from "@/components/shared/GameIcon";
 import { Divider } from "@/components/shared/Divider";
+import type { IconName } from "@/lib/icon-paths";
 
 interface Pillar {
-  icon: string;
+  icon: IconName;
   title: string;
   body: string;
 }

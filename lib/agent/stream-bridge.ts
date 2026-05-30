@@ -1,6 +1,6 @@
 import { agentGraph } from "./graph";
 import { streamAnswer } from "./generate";
-import type { AgentStateType } from "./state";
+import type { AgentStateType, RetrievedResult } from "./state";
 import type { AgentEvent } from "./events";
 import type { Game, Playthrough } from "@/lib/types";
 
@@ -31,6 +31,14 @@ export function createAgentStream(input: Input): ReadableStream<Uint8Array> {
         });
 
         let finalState: Partial<AgentStateType> = {};
+        // `.stream()` yields per-node deltas, not accumulated state. The search
+        // node returns ONLY its newest batch, so we accumulate here to mirror
+        // the graph's `results` reducer. A shallow merge into finalState would
+        // keep just the last search's batch — and a narrower second search that
+        // returns nothing would wipe the sources entirely, making the answer
+        // silently fall back to "unsourced". Indices were already assigned with
+        // a running offset in searchNode, so they stay contiguous (1..N).
+        const results: RetrievedResult[] = [];
         for await (const chunk of stream) {
           const entry = Object.entries(chunk)[0];
           if (!entry) continue;
@@ -38,10 +46,9 @@ export function createAgentStream(input: Input): ReadableStream<Uint8Array> {
           if (update.currentStep && update.stepMessage) {
             emit({ type: "progress", step: update.currentStep, message: update.stepMessage });
           }
+          if (update.results?.length) results.push(...update.results);
           finalState = { ...finalState, ...update };
         }
-
-        const results = finalState.results ?? [];
         if (results.length > 0) {
           emit({
             type: "sources",

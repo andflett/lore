@@ -18,10 +18,12 @@ settings, all output goes to the reasoning channel — `text-delta` count = 0.
 
 **Fix already applied** in [`lib/agent/generate.ts`](../lib/agent/generate.ts):
 ```ts
-providerOptions: { groq: { reasoningFormat: 'parsed', reasoningEffort: 'low' } }
+providerOptions: { groq: { reasoningFormat: 'parsed', reasoningEffort: 'medium' } }
 ```
 
-Both options are needed. If you ever change the model in
+`reasoningFormat: 'parsed'` is mandatory (without it, text-delta is empty).
+Effort is `'medium'` so the model reasons enough to attribute claims to `[n]`
+sources — at `'low'` it under-cites. If you ever change the model in
 [`lib/agent/generate.ts`](../lib/agent/generate.ts), revisit.
 
 ---
@@ -85,6 +87,40 @@ rate-limited, including via BYOK"`.
 **Fix:** Not relevant — we don't use the gateway. If a future change
 reintroduces it, you'll hit this within ~5 requests. See
 [decisions.md D1](./decisions.md).
+
+---
+
+## Agent / streaming
+
+### Answers come back "unsourced" and citations disappear
+
+**Symptom:** Most answers show no sources and no `[n]` citations, even though
+the progress steps said "Found N sources…". Worst on build/boss/quest/lore
+questions.
+
+**Cause:** `agentGraph.stream()` yields **per-node deltas**, not accumulated
+state (verified: a node returning `["b1"]` after one that returned
+`["a1","a2"]` streams `{b:{results:["b1"]}}`, not the merged list). The stream
+bridge used to shallow-merge each delta into `finalState`, so
+`finalState.results` kept only the **last** search's batch. Since most
+question kinds run a second search (see `SHOULD_DO_SECOND_SEARCH` in
+`lib/agent/nodes.ts`), the second batch overwrote the first — and a narrower
+second query that returned nothing left `results` empty, so no `sources` event
+fired and the generate step fell back to the no-results prompt.
+
+**Fix applied** in [`lib/agent/stream-bridge.ts`](../lib/agent/stream-bridge.ts):
+accumulate `update.results` into a running array (mirroring the graph's
+`results` reducer) instead of relying on the shallow merge. If you add another
+node that returns an accumulating annotation, accumulate it in the bridge the
+same way — don't read it off `finalState`.
+
+**Related:** [`SourcesFooter`](../components/chat/SourcesFooter.tsx) used to
+show *only* sources the model cited inline, so a model that retrieved sources
+but under-cited (common on gpt-oss low-effort) hid them entirely. It now falls
+back to listing what was consulted ("Sources consulted") when nothing was
+cited. Inline `[n]` adherence is still model-dependent — Claude cites most
+reliably (see `lib/models.ts` notes); gpt-oss needs `reasoningEffort: 'medium'`
+to cite well (it under-cites at `'low'`).
 
 ---
 

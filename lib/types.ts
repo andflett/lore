@@ -24,9 +24,7 @@ export interface Playthrough {
   name: string;
   characterName?: string;
   characterClass?: string;
-  difficulty?: string;
   playstyleNotes?: string;
-  currentLocation?: string;
   memory: MemoryBlock[];
   modelId: string;
   createdAt: number;

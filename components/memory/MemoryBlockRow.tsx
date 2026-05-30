@@ -3,8 +3,9 @@
 import { useState } from "react";
 import type { MemoryBlock } from "@/lib/types";
 import { GameIcon } from "@/components/shared/GameIcon";
+import type { IconName } from "@/lib/icon-paths";
 
-const CATEGORY_ICON: Record<MemoryBlock["category"], string> = {
+const CATEGORY_ICON: Record<MemoryBlock["category"], IconName> = {
   quest: "treasure-map",
   choice: "crossroads",
   character: "cowled",

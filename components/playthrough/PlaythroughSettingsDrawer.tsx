@@ -10,13 +10,11 @@ import { SectionLabel } from "@/components/shared/SectionLabel";
 import { Btn } from "@/components/shared/Btn";
 import { GameIcon } from "@/components/shared/GameIcon";
 import { GameNameField } from "./fields/GameNameField";
-import { PlaythroughNameField } from "./fields/PlaythroughNameField";
 import { CharacterFields } from "./fields/CharacterFields";
-import { DifficultyField } from "./fields/DifficultyField";
 import { PlaystyleField } from "./fields/PlaystyleField";
-import { LocationField } from "./fields/LocationField";
 import { SourcesSection } from "./SourcesSection";
 import { DeletePlaythroughDialog } from "./DeletePlaythroughDialog";
+import { derivePlaythroughName } from "@/lib/playthrough-name";
 
 interface Props {
   open: boolean;
@@ -41,12 +39,9 @@ export function PlaythroughSettingsDrawer({
 
   // Local draft state per field so typing doesn't write on every keystroke;
   // commits to Dexie on blur.
-  const [name, setName] = useState(playthrough.name);
   const [characterName, setCharacterName] = useState(playthrough.characterName ?? "");
   const [characterClass, setCharacterClass] = useState(playthrough.characterClass ?? "");
-  const [difficulty, setDifficulty] = useState(playthrough.difficulty ?? "");
   const [playstyleNotes, setPlaystyleNotes] = useState(playthrough.playstyleNotes ?? "");
-  const [currentLocation, setCurrentLocation] = useState(playthrough.currentLocation ?? "");
 
   const onClosed = () => {
     setDeleteOpen(false);
@@ -76,17 +71,6 @@ export function PlaythroughSettingsDrawer({
 
           <section>
             <SectionLabel>
-              Playthrough
-            </SectionLabel>
-            <PlaythroughNameField
-              value={name}
-              onChange={setName}
-              onBlur={() => save({ name: name.trim() || "Playthrough 1" })}
-            />
-          </section>
-
-          <section>
-            <SectionLabel>
               Character
             </SectionLabel>
             <CharacterFields
@@ -98,19 +82,11 @@ export function PlaythroughSettingsDrawer({
                 save({
                   characterName: characterName.trim() || undefined,
                   characterClass: characterClass.trim() || undefined,
+                  // The sidebar label is derived from the character, so keep it
+                  // in sync rather than exposing a separate name field.
+                  name: derivePlaythroughName(characterName, characterClass),
                 })
               }
-            />
-          </section>
-
-          <section>
-            <SectionLabel>
-              Difficulty
-            </SectionLabel>
-            <DifficultyField
-              value={difficulty}
-              onChange={setDifficulty}
-              onBlur={() => save({ difficulty: difficulty.trim() || undefined })}
             />
           </section>
 
@@ -127,17 +103,6 @@ export function PlaythroughSettingsDrawer({
               Include &ldquo;blind&rdquo; or &ldquo;no spoilers&rdquo; to make the agent ask
               before revealing plot content.
             </p>
-          </section>
-
-          <section>
-            <SectionLabel>
-              Current location
-            </SectionLabel>
-            <LocationField
-              value={currentLocation}
-              onChange={setCurrentLocation}
-              onBlur={() => save({ currentLocation: currentLocation.trim() || undefined })}
-            />
           </section>
 
           <Divider />

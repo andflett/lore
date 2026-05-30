@@ -49,10 +49,12 @@ export function streamAnswer(
     ],
     // gpt-oss is a reasoning model. Per Groq provider docs, set reasoningFormat
     // so the SDK separates reasoning from text — otherwise heavy prompts route
-    // everything to the reasoning channel and text-delta is empty. Low effort
-    // keeps responses snappy.
+    // everything to the reasoning channel and text-delta is empty. Effort is
+    // 'medium' (not 'low') because attributing each claim to the right [n]
+    // source is reasoning work — at 'low' the model skips it and under-cites.
+    // The trade is slightly slower answers; citations are core to the tool.
     providerOptions: {
-      groq: { reasoningFormat: "parsed", reasoningEffort: "low" },
+      groq: { reasoningFormat: "parsed", reasoningEffort: "medium" },
     },
   });
 }

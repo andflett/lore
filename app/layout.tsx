@@ -62,6 +62,24 @@ export default function RootLayout({
       lang="en"
       className={`${cinzel.variable} ${crimsonText.variable} h-full overflow-hidden`}
     >
+      <head>
+        {/* These textures are referenced from CSS background-image / inline
+            styles, which the preload scanner can't discover until the CSSOM is
+            built and the element lays out — so they used to pop in late.
+            Preload them up front so they paint with the rest of the UI. */}
+        <link
+          rel="preload"
+          as="image"
+          href="/textures/rough-stone.webp"
+          type="image/webp"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/textures/sidebar-pattern.webp"
+          type="image/webp"
+        />
+      </head>
       <body className="h-[100dvh] overflow-hidden">
         <Providers>{children}</Providers>
         <Analytics />

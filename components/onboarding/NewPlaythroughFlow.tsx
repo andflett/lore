@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { stoneSurface } from "@/lib/surfaces";
 import { createPlaythrough, ensureGame, listGames, listPlaythroughs } from "@/lib/db";
+import { derivePlaythroughName } from "@/lib/playthrough-name";
 import { Panel } from "@/components/shared/Panel";
 import { Btn } from "@/components/shared/Btn";
 import { GameIcon } from "@/components/shared/GameIcon";
@@ -38,13 +39,9 @@ export function NewPlaythroughFlow() {
   const finish = async () => {
     setCreating(true);
     const game = await ensureGame(gameName.trim());
-    // The playthrough name is just a sidebar label, so derive it from the
-    // character rather than asking. Renamable later in Settings.
-    const derivedName =
-      characterName.trim() || characterClass.trim() || "Playthrough 1";
     const pt = await createPlaythrough({
       gameId: game.id,
-      name: derivedName,
+      name: derivePlaythroughName(characterName, characterClass),
       characterName: characterName.trim() || undefined,
       characterClass: characterClass.trim() || undefined,
       playstyleNotes: playstyleNotes.trim() || undefined,
