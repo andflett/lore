@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wyrdscribe
 
-## Getting Started
+**Your RPG Companion** — an AI chat companion that searches the wikis you trust, remembers your playthrough, and answers without spoiling what you haven't seen yet.
 
-First, run the development server:
+All data lives in your browser (IndexedDB). No account, no cloud sync, no telemetry.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Features
+
+- **Playthrough memory** — set your character, difficulty, and playstyle once; every answer is shaped by that context
+- **Wiki search with citations** — searches sources you configure (game wikis, etc.) via Tavily; every answer links to what it found
+- **Spoiler-aware** — tell it you're playing blind and it won't reveal story content
+- **Session summaries** — end a session and get an AI-generated summary with proposed memory updates to keep for next time
+- **Multiple playthroughs** — separate runs, separate memory, separate history
+- **Local-first** — IndexedDB, no backend persistence; data never leaves the device
+
+## Stack
+
+- [Next.js 15](https://nextjs.org) (App Router)
+- [LangGraph](https://langchain-ai.github.io/langgraphjs/) — multi-step agent (decide → search → assess → generate)
+- [Vercel AI SDK](https://sdk.vercel.ai) — model abstraction + streaming
+- [Dexie](https://dexie.org) — IndexedDB wrapper for local persistence
+- [Tavily](https://tavily.com) — web/wiki search
+- Groq and Anthropic as model providers (configurable per playthrough)
+
+## Self-hosting
+
+```sh
+git clone https://github.com/andflett/lore.git
+cd lore
+npm install
+cp .env.example .env.local   # fill in your keys
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+GROQ_API_KEY=gsk_...         # free tier at console.groq.com — required
+ANTHROPIC_API_KEY=sk-ant-... # optional; falls back to Groq if absent
+TAVILY_API_KEY=tvly_...      # web search; required for wiki lookups
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Groq** — [console.groq.com/keys](https://console.groq.com/keys) — free tier, generous rate limits
+- **Anthropic** — [console.anthropic.com](https://console.anthropic.com) — pay-as-you-go (Claude Pro does not include API access)
+- **Tavily** — [app.tavily.com](https://app.tavily.com) — free tier available
 
-## Learn More
+If `ANTHROPIC_API_KEY` is missing the app falls back to the default Groq model and remains fully functional.
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sh
+npm run dev      # dev server with hot reload
+npm run build    # production build
+npm run lint     # ESLint
+npx tsc --noEmit # type check
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See [`docs/local-dev.md`](docs/local-dev.md) for more: adding models, adding icons, tweaking the agent, wiping local data.
 
-## Deploy on Vercel
+## Architecture
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+See [`docs/architecture.md`](docs/architecture.md) for a full breakdown of the folder layout, data model, LangGraph agent flow, and chat stream protocol.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+[PolyForm Noncommercial License 1.0.0](LICENSE) — free to use, modify, and self-host for personal and non-commercial purposes. Commercial use requires a separate agreement.
