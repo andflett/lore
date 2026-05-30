@@ -16,7 +16,7 @@ export function PlaythroughNameField({ value, onChange, onBlur, autoFocus }: Pro
       onChange={onChange}
       onBlur={onBlur}
       autoFocus={autoFocus}
-      placeholder="Run 1"
+      placeholder="Playthrough 1"
       ariaLabel="Playthrough name"
     />
   );

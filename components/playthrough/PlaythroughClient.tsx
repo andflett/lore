@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   createSession,
   getPlaythrough,
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export function PlaythroughClient({ playthroughId, sessionId }: Props) {
+  const router = useRouter();
   const [activeSessionId, setActiveSessionId] = useState<string | undefined>(
     sessionId,
   );
@@ -86,6 +88,9 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
     if (!playthrough) return;
     const s = await createSession(playthrough.id);
     setActiveSessionId(s.id);
+    // Keep the URL pointing at the live session so a refresh doesn't reopen
+    // the old (read-only) one we may have started from.
+    router.replace(`/playthrough/${playthrough.id}/session/${s.id}`);
   };
 
   if (fatalError) return <FatalError message={fatalError} />;
@@ -94,7 +99,11 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
     return <Spinner label="Loading playthrough…" />;
   }
 
-  const isPast = Boolean(session.endedAt) || Boolean(sessionId);
+  // Read-only = genuine history: an ended session, or one from a previous day.
+  // Today's open session stays editable however you reached it (root
+  // auto-resume or a /session/ URL), so "jump to current" and "new session"
+  // both land on a usable chat box rather than a dead read-only view.
+  const isPast = Boolean(session.endedAt) || !isToday(session.startedAt);
   const sessionIsEmpty = session.messages.length === 0;
 
   const headerRight = (

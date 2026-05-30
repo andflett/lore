@@ -81,7 +81,7 @@ export function PlaythroughSettingsDrawer({
             <PlaythroughNameField
               value={name}
               onChange={setName}
-              onBlur={() => save({ name: name.trim() || "Run 1" })}
+              onBlur={() => save({ name: name.trim() || "Playthrough 1" })}
             />
           </section>
 

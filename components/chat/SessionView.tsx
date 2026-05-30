@@ -232,15 +232,15 @@ function ReadOnlyHint({
   return (
     <Link
       href={target}
-      className="flex items-center justify-center gap-2 border border-gold-b2 px-4 py-3 text-[13px] text-text-t2 hover:border-gold hover:text-text-t3"
+      className="flex items-center justify-center gap-2 border border-gold-b3 px-4 py-3 text-[13px] text-text-t1 hover:border-gold hover:text-text-t3"
       style={{
-        ...stoneSurface("raised"),
+        ...stoneSurface("deep"),
         boxShadow:
-          "0 8px 28px rgba(0,0,0,0.55), 0 0 14px rgba(200,146,26,0.10)",
+          "inset 0 0 0 1px var(--color-gold-b1), 0 10px 28px rgba(0,0,0,0.7)",
       }}
     >
       <GameIcon name="scroll-unfurled" size={14} className="text-gold-text" />
-      <span>Past session — jump to the current chat to keep playing</span>
+      <span>Viewing a past session. Jump back to the current chat to keep playing.</span>
     </Link>
   );
 }

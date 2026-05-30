@@ -16,7 +16,7 @@ const PILLARS: Pillar[] = [
   },
   {
     icon: "open-book",
-    title: "Remembers your run",
+    title: "Remembers your playthrough",
     body: "Set up your character and how you play once. It fills in the rest as you go.",
   },
   {
