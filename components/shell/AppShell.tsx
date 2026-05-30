@@ -24,12 +24,12 @@ export function AppShell({
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <div className="flex h-screen flex-col bg-stone-s0">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-stone-s0">
       <header
-        className="flex h-12 items-center justify-between border-b-2 border-gold-b2 px-3"
+        className="flex h-16 items-center justify-between border-b-2 border-gold-b2 px-3"
         style={stoneSurface("recessed")}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Mobile: the playthroughs toggle doubles as the brand glyph. */}
           <span className="md:hidden">
             <IconButton
@@ -45,7 +45,7 @@ export function AppShell({
             <GameIcon name="fireplace" size={16} className="text-gold" />
           </span>
           <span
-            className="font-ui text-[13px] uppercase text-text-t3"
+            className="font-ui text-[11px] uppercase text-text-t3"
             style={{ letterSpacing: "0.2em" }}
           >
             Hearthnote

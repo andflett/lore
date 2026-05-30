@@ -88,7 +88,8 @@ Zod enum derive from the same list — they update automatically.
 
 ### Wipe IndexedDB (start clean)
 
-In the browser console:
+The IndexedDB is named `lorekeeper` (legacy name from before the Hearthnote
+rebrand; kept so existing local data survives). In the browser console:
 ```js
 indexedDB.deleteDatabase('lorekeeper'); location.reload();
 ```

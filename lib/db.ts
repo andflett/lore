@@ -14,6 +14,10 @@ export class LKDatabase extends Dexie {
   sessions!: Table<Session>;
 
   constructor() {
+    // IndexedDB name kept as the legacy "lorekeeper" so existing local data
+    // (playthroughs/sessions) survives the Hearthnote rebrand. Don't change
+    // this without a migration that copies data from the old db on first
+    // boot — see docs/decisions.md.
     super("lorekeeper");
     this.version(1).stores({
       games: "id, name",

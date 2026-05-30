@@ -3,15 +3,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import { useLiveQuery } from "dexie-react-hooks";
+import Link from "next/link";
 import { EmptySessionState } from "./EmptySessionState";
 import type { ChatInputHandle } from "./ChatInput";
+import { GameIcon } from "@/components/shared/GameIcon";
 import type {
   Game,
   Playthrough,
   ProposedMemoryUpdate,
   Session,
 } from "@/lib/types";
-import { addMemoryBlock, appendMessage, getSession } from "@/lib/db";
+import { addMemoryBlock, appendMessage, getSession, updatePlaythrough } from "@/lib/db";
 import { stoneSurface } from "@/lib/surfaces";
 import { parseProposals } from "@/lib/parse-proposals";
 import { useAgent } from "@/hooks/useAgent";
@@ -88,55 +90,93 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
   // Strip proposals from streaming text too so they don't briefly flash in the bubble.
   const streamingText = useMemo(() => parseProposals(text).text, [text]);
 
+  const isEmpty = messages.length === 0 && !loading;
+
   return (
-    <div className="flex h-full flex-col">
+    <div className="relative flex h-full min-h-0 flex-col">
       <div
         ref={scrollRef}
-        className="message-overlay flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6"
+        className="message-overlay flex-1 min-h-0 overflow-y-auto"
         style={stoneSurface("raised")}
       >
-        {messages.length === 0 && !loading && (
-          <EmptySessionState
-            gameName={game.name}
-            onPick={(t) => inputRef.current?.setDraft(t)}
-          />
-        )}
-        {messages.map((m) => (
-          <MessageBubble
-            key={m.id}
-            role={m.role}
-            content={m.content}
-            sources={m.sources}
-          />
-        ))}
-        {loading && (
-          <div className="space-y-2">
-            <AgentProgress steps={steps} />
-            {streamingText.length > 0 && (
-              <MessageBubble role="assistant" content={streamingText} sources={sources} />
-            )}
+        {isEmpty ? (
+          <div className="flex h-full flex-col items-center justify-center px-4 py-6 sm:px-6">
+            <div className="flex w-full max-w-2xl flex-col items-center gap-6">
+              <EmptySessionState
+                gameName={game.name}
+                onPick={(t) => inputRef.current?.setDraft(t)}
+              />
+              {!readOnly && (
+                <div className="w-full">
+                  <ChatInput
+                    ref={inputRef}
+                    disabled={loading}
+                    onSend={send}
+                    size="hero"
+                    modelId={playthrough.modelId}
+                    onModelChange={(modelId) =>
+                      updatePlaythrough(playthrough.id, { modelId })
+                    }
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        )}
-        {error && !loading && (
-          <div
-            className="border-2 border-blood-1 px-3 py-2 text-[13px] text-blood"
-            role="alert"
-          >
-            {error}
+        ) : (
+          // Bottom padding leaves room for the floating input/hint that sits over this scroll area.
+          <div className="space-y-4 px-4 py-4 pb-32 sm:px-6">
+            {messages.map((m) => (
+              <MessageBubble
+                key={m.id}
+                role={m.role}
+                content={m.content}
+                sources={m.sources}
+              />
+            ))}
+            {loading && (
+              <div className="space-y-2">
+                <AgentProgress steps={steps} />
+                {streamingText.length > 0 && (
+                  <MessageBubble role="assistant" content={streamingText} sources={sources} />
+                )}
+              </div>
+            )}
+            {error && !loading && (
+              <div
+                className="border-2 border-blood-1 px-3 py-2 text-[13px] text-blood"
+                role="alert"
+              >
+                {error}
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {!readOnly && (
-        <div
-          className="border-t-2 border-gold px-3 py-3 sm:px-4"
-          style={{
-            ...stoneSurface("raised"),
-            boxShadow:
-              "0 -4px 20px rgba(0,0,0,0.6), 0 0 14px rgba(200,146,26,0.10)",
-          }}
-        >
-          <ChatInput ref={inputRef} disabled={loading} onSend={send} />
+      {!isEmpty && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center px-4 pb-4 sm:px-6 sm:pb-5">
+          <div className="pointer-events-auto w-full max-w-2xl">
+            {readOnly ? (
+              <ReadOnlyHint playthroughId={playthrough.id} latestSessionId={playthrough.lastSessionId} currentSessionId={session.id} />
+            ) : (
+              <div
+                style={{
+                  filter:
+                    "drop-shadow(0 8px 22px rgba(0,0,0,0.55)) drop-shadow(0 0 14px rgba(200,146,26,0.08))",
+                }}
+              >
+                <ChatInput
+                  ref={inputRef}
+                  disabled={loading}
+                  onSend={send}
+                  modelId={playthrough.modelId}
+                  onModelChange={(modelId) =>
+                    updatePlaythrough(playthrough.id, { modelId })
+                  }
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -150,5 +190,36 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+// Floating prompt shown over a read-only past session, pointing the player back
+// to where the chat box would normally be so it's clear they can't type here.
+function ReadOnlyHint({
+  playthroughId,
+  latestSessionId,
+  currentSessionId,
+}: {
+  playthroughId: string;
+  latestSessionId?: string;
+  currentSessionId: string;
+}) {
+  const target =
+    latestSessionId && latestSessionId !== currentSessionId
+      ? `/playthrough/${playthroughId}/session/${latestSessionId}`
+      : `/playthrough/${playthroughId}`;
+  return (
+    <Link
+      href={target}
+      className="flex items-center justify-center gap-2 border border-gold-b2 px-4 py-3 text-[13px] text-text-t2 hover:border-gold hover:text-text-t3"
+      style={{
+        ...stoneSurface("raised"),
+        boxShadow:
+          "0 8px 28px rgba(0,0,0,0.55), 0 0 14px rgba(200,146,26,0.10)",
+      }}
+    >
+      <GameIcon name="scroll-unfurled" size={14} className="text-gold-text" />
+      <span>Past session — jump to the current chat to keep playing</span>
+    </Link>
   );
 }

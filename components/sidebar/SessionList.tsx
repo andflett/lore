@@ -21,11 +21,16 @@ interface Props {
 
 // Collapsible session history under a playthrough in the sidebar.
 export function SessionList({ playthroughId, sessions, activeSessionId }: Props) {
-  if (sessions.length === 0) return null;
+  // Hide empty past sessions — they add noise and can't be interacted with.
+  // The currently active session always shows so the user can see where they are.
+  const visible = sessions.filter(
+    (s) => s.messages.length > 0 || s.id === activeSessionId,
+  );
+  if (visible.length === 0) return null;
 
   return (
     <ul className="ml-3 border-l border-gold-b1 pl-2">
-      {sessions.map((s) => {
+      {visible.map((s) => {
         const active = s.id === activeSessionId;
         return (
           <li key={s.id}>

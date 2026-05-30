@@ -15,7 +15,7 @@ const crimsonText = Crimson_Text({
 });
 
 export const metadata: Metadata = {
-  title: "Lorekeeper",
+  title: "Hearthnote",
   description: "A gaming companion that remembers your playthrough.",
 };
 
@@ -27,9 +27,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cinzel.variable} ${crimsonText.variable} h-full`}
+      className={`${cinzel.variable} ${crimsonText.variable} h-full overflow-hidden`}
     >
-      <body className="min-h-full">
+      <body className="h-[100dvh] overflow-hidden">
         <Providers>{children}</Providers>
       </body>
     </html>

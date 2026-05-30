@@ -303,3 +303,36 @@ shared primitives may use raw elements internally):
 - `<button>` elements (use `Btn` or `IconButton`)
 - `border-radius` / `rounded-*` classes (everything's hard-edged)
 - Hardcoded hex colors (use Tailwind theme classes or `lib/tokens.ts`)
+
+---
+
+## D16 · Rebranded from "Lorekeeper" to "Hearthnote"; IndexedDB name retained
+
+**Decision:** The app's visible brand is **Hearthnote**. Visible strings
+(header wordmark, `<title>`, `package.json` name, all doc front matter)
+were updated in a single sweep. The **IndexedDB database is still named
+`lorekeeper`** (`super("lorekeeper")` in
+[`lib/db.ts`](../lib/db.ts)), and the historical planning artifacts under
+`.claude/planning/` keep their original `lorekeeper-*` filenames.
+
+**Why brand-only:** "Lorekeeper" was a working name and turned out to be
+heavily used — a Final Fantasy ability, several WoW guild add-ons, multiple
+itch.io games. See [`docs/naming.md`](./naming.md) for the shortlist
+review; **Hearthnote** won (hearth = home/safe-room, note = the records
+the player keeps).
+
+**Why keep the IndexedDB name:** renaming the db would orphan existing
+local data (every playthrough + session + memory block on every user's
+machine). A migration is possible (open both dbs, copy across, delete the
+old) but adds boot complexity and risks for zero visible benefit — users
+never see the db name. Trade reads cleanly in favour of leaving it alone.
+
+**Why keep `.claude/planning/lorekeeper-*` filenames:** historical
+artifacts — the original spec and prototype. Renaming would break the
+in-repo links and lose provenance.
+
+**How to apply going forward:** any new user-facing text says "Hearthnote."
+Old "Lorekeeper" mentions only legitimately survive in (a) the IndexedDB
+name string, (b) planning-folder filenames, (c)
+[`docs/naming.md`](./naming.md) and this entry as records of the rename.
+A grep for `Lorekeeper` outside those locations is a regression.

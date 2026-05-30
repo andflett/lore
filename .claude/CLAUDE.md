@@ -1,4 +1,9 @@
-# Lorekeeper
+# Hearthnote
+
+> *Previously named "Lorekeeper" — see [docs/naming.md](../docs/naming.md)
+> for why we rebranded. Filenames in `.claude/planning/` and the IndexedDB
+> name keep the legacy "lorekeeper" string for historical / data-continuity
+> reasons; the visible brand is Hearthnote everywhere.*
 
 A local-first gaming companion. Per-playthrough memory in IndexedDB; chat is a
 LangGraph agent that searches the web (Tavily) and answers with citations.

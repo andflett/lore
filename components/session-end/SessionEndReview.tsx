@@ -3,14 +3,17 @@
 import { useEffect, useState } from "react";
 import type {
   Game,
+  MemoryCategory,
   Playthrough,
   ProposedMemoryUpdate,
   Session,
 } from "@/lib/types";
+import { MEMORY_CATEGORIES } from "@/lib/types";
 import { addMemoryBlock, endSession } from "@/lib/db";
 import { Modal } from "@/components/shared/Modal";
 import { Divider } from "@/components/shared/Divider";
 import { SectionLabel } from "@/components/shared/SectionLabel";
+import { SelectField } from "@/components/shared/SelectField";
 import { Btn } from "@/components/shared/Btn";
 import { GameIcon } from "@/components/shared/GameIcon";
 
@@ -39,11 +42,15 @@ export function SessionEndReview({
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState("");
   const [items, setItems] = useState<ReviewItem[]>([]);
+  const [customCategory, setCustomCategory] = useState<MemoryCategory>("note");
+  const [customContent, setCustomContent] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
+    setCustomCategory("note");
+    setCustomContent("");
     (async () => {
       setLoading(true);
       setError(null);
@@ -82,6 +89,14 @@ export function SessionEndReview({
           source: "ai",
         });
       }
+    }
+    const custom = customContent.trim();
+    if (custom) {
+      await addMemoryBlock(playthrough.id, {
+        category: customCategory,
+        content: custom,
+        source: "user",
+      });
     }
     await endSession(session.id, summary);
     setSaving(false);
@@ -161,6 +176,35 @@ export function SessionEndReview({
                 ))}
               </ul>
             )}
+          </section>
+
+          <Divider />
+
+          <section>
+            <SectionLabel>Add Your Own Memory (optional)</SectionLabel>
+            <div className="flex items-start gap-2">
+              <div className="w-32 shrink-0">
+                <SelectField
+                  value={customCategory}
+                  onChange={setCustomCategory}
+                  ariaLabel="Memory category"
+                  size="sm"
+                >
+                  {MEMORY_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </SelectField>
+              </div>
+              <textarea
+                value={customContent}
+                onChange={(e) => setCustomContent(e.target.value)}
+                rows={2}
+                placeholder="Anything you want to remember from this session…"
+                className="flex-1 resize-none border-2 border-gold-b2 bg-stone-s0 px-2 py-1 text-[14px] text-text-t2 outline-none placeholder:text-text-dim focus:border-gold"
+              />
+            </div>
           </section>
 
           <div className="flex justify-end gap-2 pt-2">

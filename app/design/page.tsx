@@ -9,7 +9,7 @@ import { MessageBubble } from "@/components/chat/MessageBubble";
 import { DesignFormPreview } from "./DesignFormPreview";
 
 export const metadata: Metadata = {
-  title: "Lorekeeper — Design System",
+  title: "Hearthnote — Design System",
 };
 
 const SWATCHES: { label: string; value: string; varName: string }[] = [
@@ -77,7 +77,7 @@ export default function DesignPage() {
             className="font-ui text-[22px] uppercase text-text-t3"
             style={{ letterSpacing: "0.2em" }}
           >
-            Lorekeeper
+            Hearthnote
           </h1>
           <p className="mt-1 text-text-t0">Design system — kitchen sink (dev only)</p>
         </header>
