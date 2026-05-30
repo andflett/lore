@@ -18,10 +18,12 @@ settings, all output goes to the reasoning channel — `text-delta` count = 0.
 
 **Fix already applied** in [`lib/agent/generate.ts`](../lib/agent/generate.ts):
 ```ts
-providerOptions: { groq: { reasoningFormat: 'parsed', reasoningEffort: 'low' } }
+providerOptions: { groq: { reasoningFormat: 'parsed', reasoningEffort: 'medium' } }
 ```
 
-Both options are needed. If you ever change the model in
+`reasoningFormat: 'parsed'` is mandatory (without it, text-delta is empty).
+Effort is `'medium'` so the model reasons enough to attribute claims to `[n]`
+sources — at `'low'` it under-cites. If you ever change the model in
 [`lib/agent/generate.ts`](../lib/agent/generate.ts), revisit.
 
 ---
@@ -117,8 +119,8 @@ show *only* sources the model cited inline, so a model that retrieved sources
 but under-cited (common on gpt-oss low-effort) hid them entirely. It now falls
 back to listing what was consulted ("Sources consulted") when nothing was
 cited. Inline `[n]` adherence is still model-dependent — Claude cites most
-reliably (see `lib/models.ts` notes); gpt-oss at `reasoningEffort: 'low'` is
-the weakest. Bump effort if inline citations matter more than latency.
+reliably (see `lib/models.ts` notes); gpt-oss needs `reasoningEffort: 'medium'`
+to cite well (it under-cites at `'low'`).
 
 ---
 
