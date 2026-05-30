@@ -10,19 +10,19 @@ interface Pillar {
 
 const PILLARS: Pillar[] = [
   {
+    icon: "magnifying-glass",
+    title: "Searches sources you choose",
+    body: "Point it at any wiki. Every answer is cited — you can see exactly where it looked.",
+  },
+  {
     icon: "open-book",
-    title: "A scribe for your playthrough",
-    body: "Wyrdscribe keeps a quiet ledger of who you are, where you've been, and what you've chosen — and brings it to every question you ask.",
+    title: "Remembers your run",
+    body: "Set your character, difficulty, and playstyle once. That context shapes every answer, and builds as you play.",
   },
   {
     icon: "fireplace",
-    title: "Yours alone, on this device",
-    body: "Your runs never leave this browser. No account, no cloud, no telemetry — your saves are as private as a journal in your own hand.",
-  },
-  {
-    icon: "scroll-unfurled",
-    title: "Cited, careful, spoiler-aware",
-    body: "Answers come from the wikis you trust, with sources you can verify. Tell it you're playing blind and it'll guard the plot for you.",
+    title: "Private, no account needed",
+    body: "Everything stays in your browser. No sign-in, no cloud, no telemetry.",
   },
 ];
 
@@ -30,9 +30,6 @@ interface Props {
   onBegin: () => void;
 }
 
-// First-run intro screen. Sells the product before asking for inputs.
-// Composed of the same primitives used elsewhere — Panel chrome is owned by
-// the parent flow, this is just the contents.
 export function IntroStep({ onBegin }: Props) {
   return (
     <div>
@@ -50,12 +47,11 @@ export function IntroStep({ onBegin }: Props) {
           className="font-ui text-[18px] uppercase text-text-t3"
           style={{ letterSpacing: "0.18em" }}
         >
-          A companion for your runs
+          Your RPG Companion
         </h1>
-        <p className="mt-3 text-[14px] leading-relaxed text-text-t1">
-          Ask questions about the game you're playing. Wyrdscribe remembers
-          your run, searches the wikis, and answers in your context — without
-          ever sending your saves anywhere.
+        <p className="mt-3 text-[14px] leading-relaxed text-text-t2">
+          An AI companion that searches the wikis you trust, remembers your
+          playthrough, and answers without spoiling what you haven&apos;t seen yet.
         </p>
       </header>
 
@@ -74,7 +70,7 @@ export function IntroStep({ onBegin }: Props) {
               >
                 {p.title}
               </h3>
-              <p className="mt-1 text-[13px] leading-relaxed text-text-t1">
+              <p className="mt-1 text-[13px] leading-relaxed text-text-t2">
                 {p.body}
               </p>
             </div>
@@ -82,16 +78,7 @@ export function IntroStep({ onBegin }: Props) {
         ))}
       </ul>
 
-      <div className="mt-5">
-        <Divider />
-      </div>
-
-      <p className="mt-4 text-center text-[12px] italic leading-relaxed text-text-dim">
-        Set up a playthrough in under a minute. Edit anything later — none of
-        these answers are locked in.
-      </p>
-
-      <div className="mt-5 flex justify-center">
+      <div className="mt-6 flex justify-center">
         <Btn variant="confirm" size="lg" onClick={onBegin}>
           <GameIcon name="quill-ink" size={14} />
           Get started

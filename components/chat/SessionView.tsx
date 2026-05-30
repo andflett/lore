@@ -6,6 +6,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
 import { EmptySessionState } from "./EmptySessionState";
 import type { ChatInputHandle } from "./ChatInput";
+import { Btn } from "@/components/shared/Btn";
 import { GameIcon } from "@/components/shared/GameIcon";
 import type {
   Game,
@@ -13,7 +14,7 @@ import type {
   ProposedMemoryUpdate,
   Session,
 } from "@/lib/types";
-import { addMemoryBlock, appendMessage, getSession, updatePlaythrough } from "@/lib/db";
+import { addMemoryBlock, appendMessage, getSession } from "@/lib/db";
 import { stoneSurface } from "@/lib/surfaces";
 import { parseProposals } from "@/lib/parse-proposals";
 import { useAgent } from "@/hooks/useAgent";
@@ -21,6 +22,8 @@ import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { AgentProgress } from "./AgentProgress";
 import { MemoryProposalToast } from "@/components/memory/MemoryProposalToast";
+
+const STARTERS = ["Where do I find ", "How do I beat ", "Best build for "];
 
 interface Props {
   game: Game;
@@ -94,38 +97,45 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
   const isEmpty = messages.length === 0 && !loading;
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col">
+    <div className="relative flex h-full min-h-0 flex-col" style={stoneSurface("raised")}>
       <div
         ref={scrollRef}
-        className="message-overlay flex-1 min-h-0 overflow-y-auto"
-        style={stoneSurface("raised")}
+        className="message-overlay flex flex-col flex-1 min-h-0 overflow-y-auto"
       >
         {isEmpty ? (
-          <div className="flex h-full flex-col items-center justify-center px-4 py-6 sm:px-6">
+          <div className="flex flex-1 flex-col items-center justify-center px-4 py-6 sm:px-6">
             <div className="flex w-full max-w-2xl flex-col items-center gap-6">
-              <EmptySessionState
-                gameName={game.name}
-                onPick={(t) => inputRef.current?.setDraft(t)}
-              />
+              <EmptySessionState gameName={game.name} />
               {!readOnly && (
-                <div className="w-full">
-                  <ChatInput
-                    ref={inputRef}
-                    disabled={loading}
-                    onSend={send}
-                    size="hero"
-                    modelId={playthrough.modelId}
-                    onModelChange={(modelId) =>
-                      updatePlaythrough(playthrough.id, { modelId })
-                    }
-                  />
-                </div>
+                <>
+                  <div className="w-full">
+                    <ChatInput
+                      ref={inputRef}
+                      disabled={loading}
+                      onSend={send}
+                      size="hero"
+                    />
+                  </div>
+                  <div className="flex w-full gap-2">
+                    {STARTERS.map((s) => (
+                      <Btn
+                        key={s}
+                        variant="dim"
+                        size="sm"
+                        style={{ flexGrow: 1, flexShrink: 1, minWidth: 0 }}
+                        onClick={() => inputRef.current?.setDraft(s)}
+                      >
+                        {s.trim()}
+                      </Btn>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           </div>
         ) : (
           // Bottom padding leaves room for the floating input/hint that sits over this scroll area.
-          <div className="space-y-4 px-4 py-4 pb-32 sm:px-6">
+          <div className="space-y-4 px-4 py-4 pb-48 sm:px-6">
             {messages.map((m) => (
               <MessageBubble
                 key={m.id}
@@ -176,10 +186,6 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
                   ref={inputRef}
                   disabled={loading}
                   onSend={send}
-                  modelId={playthrough.modelId}
-                  onModelChange={(modelId) =>
-                    updatePlaythrough(playthrough.id, { modelId })
-                  }
                 />
               </div>
             )}

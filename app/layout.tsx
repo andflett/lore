@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     url: "https://wyrdscribe.app",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Wyrdscribe",
     description:
       "A local-first gaming companion that remembers your playthrough.",
