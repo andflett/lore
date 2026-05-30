@@ -90,7 +90,7 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
 
   if (fatalError) return <FatalError message={fatalError} />;
   if (playthroughLoaded && !playthrough) return <FatalError message="This playthrough could not be found." />;
-  if (!playthroughLoaded || !game || resolving || !session) {
+  if (!playthroughLoaded || !playthrough || !game || resolving || !session) {
     return <Spinner label="Loading playthrough…" />;
   }
 
