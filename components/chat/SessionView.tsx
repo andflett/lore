@@ -23,7 +23,7 @@ import { ChatInput } from "./ChatInput";
 import { AgentProgress } from "./AgentProgress";
 import { MemoryProposalToast } from "@/components/memory/MemoryProposalToast";
 
-const STARTERS = ["Where do I find ", "How do I beat ", "What's a good build for "];
+const STARTERS = ["Where do I find ", "How do I beat ", "Best build for "];
 
 interface Props {
   game: Game;
@@ -100,10 +100,10 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
     <div className="relative flex h-full min-h-0 flex-col" style={stoneSurface("raised")}>
       <div
         ref={scrollRef}
-        className="message-overlay flex-1 min-h-0 overflow-y-auto"
+        className="message-overlay flex flex-col flex-1 min-h-0 overflow-y-auto"
       >
         {isEmpty ? (
-          <div className="flex min-h-full flex-col items-center justify-center px-4 py-6 sm:px-6">
+          <div className="flex flex-1 flex-col items-center justify-center px-4 py-6 sm:px-6">
             <div className="flex w-full max-w-2xl flex-col items-center gap-6">
               <EmptySessionState gameName={game.name} />
               {!readOnly && (
@@ -116,10 +116,16 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
                       size="hero"
                     />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex w-full gap-2">
                     {STARTERS.map((s) => (
-                      <Btn key={s} variant="dim" size="sm" onClick={() => inputRef.current?.setDraft(s)}>
-                        {s}
+                      <Btn
+                        key={s}
+                        variant="dim"
+                        size="sm"
+                        style={{ flexGrow: 1, flexShrink: 1, minWidth: 0 }}
+                        onClick={() => inputRef.current?.setDraft(s)}
+                      >
+                        {s.trim()}
                       </Btn>
                     ))}
                   </div>

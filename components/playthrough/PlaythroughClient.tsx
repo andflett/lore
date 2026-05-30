@@ -95,6 +95,7 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
   }
 
   const isPast = Boolean(session.endedAt) || Boolean(sessionId);
+  const sessionIsEmpty = session.messages.length === 0;
 
   const headerRight = (
     <>
@@ -114,14 +115,16 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
         tooltipAlign="end"
         onClick={() => setSettingsOpen(true)}
       />
-      <IconButton
-        icon="sunrise"
-        label="New session"
-        size="sm"
-        tooltipSide="bottom"
-        tooltipAlign="end"
-        onClick={isPast ? startNewSession : () => setEndOpen(true)}
-      />
+      {(!sessionIsEmpty || isPast) && (
+        <IconButton
+          icon="sunrise"
+          label="New session"
+          size="sm"
+          tooltipSide="bottom"
+          tooltipAlign="end"
+          onClick={isPast ? startNewSession : () => setEndOpen(true)}
+        />
+      )}
     </>
   );
 
