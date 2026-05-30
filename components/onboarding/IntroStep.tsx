@@ -34,7 +34,7 @@ export function IntroStep({ onBegin }: Props) {
   return (
     <div>
       <header className="mb-5 text-center">
-        <div className="mb-3 flex items-center justify-center gap-2 text-gold-text">
+        <div className="mb-6 flex items-center justify-center gap-2 text-gold-text">
           <GameIcon name="quill-ink" size={20} />
           <span
             className="font-ui text-[11px] uppercase"
