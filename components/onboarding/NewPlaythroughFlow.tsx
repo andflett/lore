@@ -60,7 +60,7 @@ export function NewPlaythroughFlow() {
     <OnboardingStep
       key="run"
       title="Your character"
-      hint="All optional. Tell me as much or as little as you like, and you can change any of it later."
+      hint="All optional. You can change any of it later."
     >
       <div className="space-y-4">
         <div>
@@ -91,7 +91,7 @@ export function NewPlaythroughFlow() {
     >
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="w-[min(480px,100%)]">
-        <Panel style={{ padding: 24 }}>
+        <Panel className="p-5 sm:p-6">
           {showIntro ? (
             <IntroStep onBegin={() => setIntroDismissed(true)} />
           ) : (
