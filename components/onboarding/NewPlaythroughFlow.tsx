@@ -60,11 +60,11 @@ export function NewPlaythroughFlow() {
       <GameNameField value={gameName} onChange={setGameName} games={games} autoFocus />
     </OnboardingStep>,
 
-    <OnboardingStep key="name" title="Name this playthrough" hint="Optional — handy when you have multiple runs.">
+    <OnboardingStep key="name" title="Name this playthrough" hint="Optional, but handy once you've got more than one run going.">
       <PlaythroughNameField value={name} onChange={setName} autoFocus />
     </OnboardingStep>,
 
-    <OnboardingStep key="char" title="Your character" hint="Name and class/build — skip for now if unsure.">
+    <OnboardingStep key="char" title="Your character" hint="Name and class or build. Skip it for now if you're still deciding.">
       <CharacterFields
         name={characterName}
         className={characterClass}
@@ -78,11 +78,11 @@ export function NewPlaythroughFlow() {
       <DifficultyField value={difficulty} onChange={setDifficulty} autoFocus />
     </OnboardingStep>,
 
-    <OnboardingStep key="style" title="Playstyle & preferences" hint="The most useful field — shapes every answer.">
+    <OnboardingStep key="style" title="Playstyle & preferences" hint="The one field worth filling in. It shapes every answer you get.">
       <PlaystyleField value={playstyleNotes} onChange={setPlaystyleNotes} autoFocus />
     </OnboardingStep>,
 
-    <OnboardingStep key="where" title="Where are you?" hint="Optional — a loose sense of progress.">
+    <OnboardingStep key="where" title="Where are you?" hint="Optional, just a rough sense of how far you've got.">
       <LocationField value={currentLocation} onChange={setCurrentLocation} autoFocus />
     </OnboardingStep>,
   ];

@@ -12,17 +12,17 @@ const PILLARS: Pillar[] = [
   {
     icon: "magnifying-glass",
     title: "Searches sources you choose",
-    body: "Point it at any wiki. Every answer is cited — you can see exactly where it looked.",
+    body: "Point it at the wikis you actually trust. Every answer is cited, so you can check its work.",
   },
   {
     icon: "open-book",
     title: "Remembers your run",
-    body: "Set your character, difficulty, and playstyle once. That context shapes every answer, and builds as you play.",
+    body: "Tell it your character, difficulty, and how you play once. It holds onto that and picks up more as you go, so you're not re-explaining yourself every session.",
   },
   {
     icon: "fireplace",
     title: "Private, no account needed",
-    body: "Everything stays in your browser. No sign-in, no cloud, no telemetry.",
+    body: "Everything lives in your browser. No sign-in, no cloud, no one reading over your shoulder.",
   },
 ];
 
@@ -50,9 +50,9 @@ export function IntroStep({ onBegin }: Props) {
           Your RPG Companion
         </h1>
         <p className="mt-3 text-[14px] leading-relaxed text-text-t2">
-          An AI companion that searches the wikis you trust, remembers where
-          you are even when you don&apos;t, and answers without spoiling what
-          you haven&apos;t seen yet.
+          A companion for your playthrough. It digs through the wikis you
+          trust, keeps track of where you are even when you don&apos;t, and
+          answers without giving away what&apos;s still ahead of you.
         </p>
       </header>
 
