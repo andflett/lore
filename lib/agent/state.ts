@@ -1,5 +1,5 @@
 import { Annotation } from "@langchain/langgraph";
-import type { Game, Playthrough, SearchSource } from "@/lib/types";
+import type { Game, Playthrough, SearchSource, UserKeys } from "@/lib/types";
 import type { QuestionKind, SpoilerRisk } from "./schemas";
 
 // A retrieved web result carries its full content for the generate step,
@@ -16,6 +16,8 @@ export const AgentState = Annotation.Root({
   game: Annotation<Game>({ reducer: (_, n) => n }),
   playthrough: Annotation<Playthrough>({ reducer: (_, n) => n }),
   modelId: Annotation<string>({ reducer: (_, n) => n }),
+  // BYOK keys (Anthropic/Tavily). Empty object means "use server env keys".
+  keys: Annotation<UserKeys>({ reducer: (_, n) => n, default: () => ({}) }),
   priorMessages: Annotation<Turn[]>({
     reducer: (_, n) => n,
     default: () => [],

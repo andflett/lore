@@ -44,7 +44,7 @@ export function streamAnswer(
   // Note: Anthropic needs a ≥2048-token prefix (Haiku) to cache at all, so this
   // is a no-op on short chats; it pays off as a session's history grows. The
   // small decide/ground generateObject prompts are below that floor — not cached.
-  const cached = isAnthropic(state.modelId);
+  const cached = isAnthropic(state.modelId, state.keys);
   const systemMessage: ModelMessage = {
     role: "system",
     content: system,
@@ -68,7 +68,7 @@ export function streamAnswer(
   );
 
   return streamText({
-    model: resolveModel(state.modelId),
+    model: resolveModel(state.modelId, state.keys),
     messages: [
       systemMessage,
       ...history,

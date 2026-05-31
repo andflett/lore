@@ -464,3 +464,42 @@ so a breakpoint can sit on it. Default TTL (5m) — turns land within minutes.
 **Tradeoff:** Default model is still Groq, so this is dormant until a playthrough
 runs on Haiku/Sonnet. Shipped now as cheap, gated groundwork for the Claude
 default discussed alongside this change.
+
+---
+
+## D20 · BYOK: per-request user keys (Anthropic + Tavily), Groq stays server-side
+
+**Decision:** Users can supply their own **Anthropic** and **Tavily** keys in a
+global Settings modal ([`components/settings/SettingsModal.tsx`](../components/settings/SettingsModal.tsx),
+opened from a header lantern). Keys are stored in `localStorage`
+(`lib/storage.ts`, `getUserKeys`/`setUserKeys`), merged into the request body as
+`userKeys` by [`useAgent`](../hooks/useAgent.ts) and `SessionEndReview`, and used
+**transiently** server-side — never logged or persisted. **Groq is not
+user-overridable** (it's the free default tier); only Anthropic + Tavily are.
+
+**Why this shape:**
+- **Server boundary already exists**, so keys ride the existing request to
+  `/api/chat` and `/api/session-end`; no new infra. The routes validate
+  `userKeys` (bounded strings) alongside the Phase-1 hardening.
+- **Per-request, not singletons.** `lib/provider.ts` was refactored from
+  module-load `createAnthropic`/`createGroq` singletons to a factory:
+  `resolveModel(id, keys?)` builds the Anthropic client per-call with
+  `keys.anthropic ?? process.env.ANTHROPIC_API_KEY`. Groq stays a singleton.
+  `keys` is threaded through `AgentState` → `decideNode`/`searchNode`/
+  `groundNode`/`streamAnswer`; `searchTavily(query, opts, userKey?)` takes the
+  Tavily override. `isAnthropic(id, keys?)` now also returns true for a BYOK key,
+  so D19 caching applies to BYOK Anthropic calls too.
+- **localStorage, not IndexedDB:** keys are config/secrets (not playthrough
+  data) and need a synchronous read when building a request. No fake client-side
+  encryption — a decrypt key stored next to the ciphertext is theatre; instead
+  the UI is explicit that keys live in the browser, and the privacy-conscious
+  self-host.
+
+**Trust model:** a BYOK key transits the owner's server (used only to make that
+request, never stored). Fully client-side direct-to-Anthropic is a future
+north-star but Tavily lacks browser CORS, so it can't be fully client-side today.
+
+**Funnel role:** BYOK is the *upgrade/unlimited* path — with keys you run on your
+own quota and unlock Claude; without them you get the free shared demo (Groq +
+the server's Tavily credits). BYOK requests will also bypass the Phase-3 demo
+caps. Owner-unlimited needs no auth: Andrew just uses BYOK with his own keys.

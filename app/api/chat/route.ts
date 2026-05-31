@@ -24,6 +24,13 @@ const bodySchema = z.object({
     .object({ id: z.string(), gameId: z.string(), modelId: z.string().optional() })
     .passthrough(),
   modelId: z.string().optional(),
+  // BYOK keys (optional). Bounded so the public body can't carry junk.
+  userKeys: z
+    .object({
+      anthropic: z.string().max(200).optional(),
+      tavily: z.string().max(200).optional(),
+    })
+    .optional(),
 });
 
 export async function POST(req: Request) {
@@ -50,6 +57,7 @@ export async function POST(req: Request) {
     game: game as unknown as Game,
     playthrough: playthrough as unknown as Playthrough,
     modelId,
+    keys: parsed.data.userKeys ?? {},
   });
 
   return new Response(stream, {

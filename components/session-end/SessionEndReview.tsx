@@ -10,6 +10,7 @@ import type {
 } from "@/lib/types";
 import { MEMORY_CATEGORIES } from "@/lib/types";
 import { addMemoryBlock, endSession } from "@/lib/db";
+import { getUserKeys } from "@/lib/storage";
 import { Modal } from "@/components/shared/Modal";
 import { Divider } from "@/components/shared/Divider";
 import { SectionLabel } from "@/components/shared/SectionLabel";
@@ -58,7 +59,7 @@ export function SessionEndReview({
         const res = await fetch("/api/session-end", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ session, playthrough, game }),
+          body: JSON.stringify({ session, playthrough, game, userKeys: getUserKeys() }),
         });
         if (!res.ok) throw new Error(`Request failed (${res.status})`);
         const data = (await res.json()) as {

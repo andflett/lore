@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import type { Game, Playthrough, SearchSource } from "@/lib/types";
 import type { AgentEvent } from "@/lib/agent/events";
 import type { QuestionKind } from "@/lib/agent/schemas";
+import { getUserKeys } from "@/lib/storage";
 
 type Turn = { role: "user" | "assistant"; content: string };
 
@@ -75,7 +76,10 @@ export function useAgent(): UseAgentReturn {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(input),
+        // Merge in any BYOK keys stored in this browser so the request runs on
+        // the user's own quota (and unlocks Claude). Read at call time so a
+        // just-saved key takes effect without remounting.
+        body: JSON.stringify({ ...input, userKeys: getUserKeys() }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {

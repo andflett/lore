@@ -111,7 +111,7 @@ export async function decideNode(
 
   try {
     const { object } = await generateObject({
-      model: resolveModel(state.modelId),
+      model: resolveModel(state.modelId, state.keys),
       schema: decisionSchema,
       prompt: contextLines.join("\n"),
     });
@@ -160,11 +160,15 @@ export async function searchNode(
   const { include, exclude } = factual
     ? resolveFactualDomains(state.game)
     : resolveEffectiveDomains(state.game);
-  const raw = await searchTavily(query, {
-    includeDomains: include,
-    excludeDomains: exclude,
-    searchDepth: depthFor(state.kind),
-  });
+  const raw = await searchTavily(
+    query,
+    {
+      includeDomains: include,
+      excludeDomains: exclude,
+      searchDepth: depthFor(state.kind),
+    },
+    state.keys.tavily,
+  );
   const offset = state.results.length;
   const indexed: RetrievedResult[] = raw.map((r, i) => ({
     index: offset + i + 1,
@@ -225,7 +229,7 @@ export async function groundNode(
     .join("\n");
   try {
     const { object } = await generateObject({
-      model: resolveModel(state.modelId),
+      model: resolveModel(state.modelId, state.keys),
       schema: groundingSchema,
       prompt: [
         `Question: "${state.query}"`,

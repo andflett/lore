@@ -7,7 +7,7 @@ interface Props {
   placeholder?: string;
   autoFocus?: boolean;
   ariaLabel?: string;
-  type?: "text" | "search";
+  type?: "text" | "search" | "password";
   // When true, renders a non-interactive, dimmed read-only field. Useful for
   // displaying immutable values (e.g. the game name in Settings).
   readOnly?: boolean;

@@ -77,8 +77,11 @@ export interface TavilyOptions {
 export async function searchTavily(
   query: string,
   opts: TavilyOptions = {},
+  userKey?: string,
 ): Promise<TavilyResult[]> {
-  const apiKey = process.env.TAVILY_API_KEY;
+  // BYOK Tavily key (if provided) runs the search on the user's own quota;
+  // otherwise fall back to the server env key (the free demo's credits).
+  const apiKey = userKey || process.env.TAVILY_API_KEY;
   if (!apiKey) throw new Error("TAVILY_API_KEY is not set");
 
   const include = opts.includeDomains ?? DEFAULT_INCLUDE_DOMAINS;

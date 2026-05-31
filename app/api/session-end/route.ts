@@ -16,6 +16,12 @@ const bodySchema = z.object({
     .object({ id: z.string(), modelId: z.string().optional() })
     .passthrough(),
   game: z.object({ id: z.string(), name: z.string() }).passthrough(),
+  userKeys: z
+    .object({
+      anthropic: z.string().max(200).optional(),
+      tavily: z.string().max(200).optional(),
+    })
+    .optional(),
 });
 
 export async function POST(req: Request) {
@@ -37,7 +43,7 @@ export async function POST(req: Request) {
   const modelId = isKnownModel(requested) ? requested : DEFAULT_MODEL;
 
   const { object } = await generateObject({
-    model: resolveModel(modelId),
+    model: resolveModel(modelId, parsed.data.userKeys ?? {}),
     schema: z.object({
       summary: z.string(),
       proposals: z.array(
