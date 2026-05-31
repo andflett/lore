@@ -4,6 +4,8 @@
 
 All data lives in your browser (IndexedDB). No account, no cloud sync, no telemetry.
 
+**Try it:** [wyrdscribe.app](https://wyrdscribe.app) — no sign-up. Or self-host below.
+
 ---
 
 ## Features
@@ -17,14 +19,20 @@ All data lives in your browser (IndexedDB). No account, no cloud sync, no teleme
 
 ## Stack
 
-- [Next.js 15](https://nextjs.org) (App Router)
-- [LangGraph](https://langchain-ai.github.io/langgraphjs/) — multi-step agent (decide → search → assess → generate)
+- [Next.js 16](https://nextjs.org) (App Router)
+- [LangGraph](https://langchain-ai.github.io/langgraphjs/) — multi-step agent (decide → search → ground → generate)
 - [Vercel AI SDK](https://sdk.vercel.ai) — model abstraction + streaming
 - [Dexie](https://dexie.org) — IndexedDB wrapper for local persistence
 - [Tavily](https://tavily.com) — web/wiki search
 - Groq and Anthropic as model providers (configurable per playthrough)
 
 ## Self-hosting
+
+You run it on your own keys — your data, your costs, no limits.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fandflett%2Flore&env=GROQ_API_KEY,TAVILY_API_KEY,ANTHROPIC_API_KEY&envDescription=GROQ%20%2B%20TAVILY%20required%3B%20ANTHROPIC%20optional&envLink=https%3A%2F%2Fgithub.com%2Fandflett%2Flore%23environment-variables)
+
+Or locally:
 
 ```sh
 git clone https://github.com/andflett/lore.git

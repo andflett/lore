@@ -10,6 +10,7 @@ import type {
 } from "@/lib/types";
 import { MEMORY_CATEGORIES } from "@/lib/types";
 import { addMemoryBlock, endSession } from "@/lib/db";
+import { getUserKeys } from "@/lib/storage";
 import { Modal } from "@/components/shared/Modal";
 import { Divider } from "@/components/shared/Divider";
 import { SectionLabel } from "@/components/shared/SectionLabel";
@@ -46,11 +47,21 @@ export function SessionEndReview({
   const [customContent, setCustomContent] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Reset the custom-memory form whenever the modal (re)opens. Done during
+  // render via the previous-prop pattern rather than in the effect, so we don't
+  // trigger a synchronous setState cascade inside the fetch effect.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) {
+      setCustomCategory("note");
+      setCustomContent("");
+    }
+  }
+
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
-    setCustomCategory("note");
-    setCustomContent("");
     (async () => {
       setLoading(true);
       setError(null);
@@ -58,7 +69,7 @@ export function SessionEndReview({
         const res = await fetch("/api/session-end", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ session, playthrough, game }),
+          body: JSON.stringify({ session, playthrough, game, userKeys: getUserKeys() }),
         });
         if (!res.ok) throw new Error(`Request failed (${res.status})`);
         const data = (await res.json()) as {

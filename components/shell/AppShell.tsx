@@ -6,6 +6,7 @@ import { stoneSurface } from "@/lib/surfaces";
 import { GameIcon } from "@/components/shared/GameIcon";
 import { IconButton } from "@/components/shared/IconButton";
 import { Sidebar } from "@/components/sidebar/Sidebar";
+import { SettingsModal } from "@/components/settings/SettingsModal";
 
 interface Props {
   children: ReactNode;
@@ -22,6 +23,7 @@ export function AppShell({
   headerRight,
 }: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-stone-s0">
@@ -51,8 +53,18 @@ export function AppShell({
             Wyrdscribe
           </span>
         </div>
-        <div className="flex items-center gap-2">{headerRight}</div>
+        <div className="flex items-center gap-2">
+          {headerRight}
+          <IconButton
+            icon="lantern-flame"
+            label="Settings"
+            size="sm"
+            onClick={() => setSettingsOpen(true)}
+          />
+        </div>
       </header>
+
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar */}

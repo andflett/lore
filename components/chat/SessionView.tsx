@@ -22,6 +22,7 @@ import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { AgentProgress } from "./AgentProgress";
 import { MemoryProposalToast } from "@/components/memory/MemoryProposalToast";
+import { UpgradeModal } from "@/components/settings/UpgradeModal";
 
 const STARTERS = ["Where do I find ", "How do I beat ", "Best build for "];
 
@@ -39,7 +40,8 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
   const [proposals, setProposals] = useState<ProposedMemoryUpdate[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<ChatInputHandle>(null);
-  const { ask, loading, steps, text, sources, kind, error } = useAgent();
+  const { ask, loading, steps, text, sources, kind, error, limited, dismissLimit } =
+    useAgent();
 
   const send = async (query: string) => {
     if (loading || readOnly) return;
@@ -210,6 +212,8 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
           />
         )}
       </AnimatePresence>
+
+      <UpgradeModal reason={limited} onClose={dismissLimit} />
     </div>
   );
 }

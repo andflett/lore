@@ -4,6 +4,9 @@ import { useCallback, useRef, useState } from "react";
 import type { Game, Playthrough, SearchSource } from "@/lib/types";
 import type { AgentEvent } from "@/lib/agent/events";
 import type { QuestionKind } from "@/lib/agent/schemas";
+import { getUserKeys, getClientId } from "@/lib/storage";
+
+export type LimitReason = "user" | "global";
 
 type Turn = { role: "user" | "assistant"; content: string };
 
@@ -19,6 +22,8 @@ export interface UseAgentState {
   sources: SearchSource[];
   kind: QuestionKind | null;
   error: string | null;
+  // Set when the demo usage limit is hit (HTTP 429). Drives the upgrade prompt.
+  limited: LimitReason | null;
 }
 
 const INITIAL: UseAgentState = {
@@ -28,6 +33,7 @@ const INITIAL: UseAgentState = {
   sources: [],
   kind: null,
   error: null,
+  limited: null,
 };
 
 export interface AskInput {
@@ -46,6 +52,7 @@ export interface UseAgentReturn extends UseAgentState {
   }>;
   cancel: () => void;
   reset: () => void;
+  dismissLimit: () => void;
 }
 
 export function useAgent(): UseAgentReturn {
@@ -53,6 +60,10 @@ export function useAgent(): UseAgentReturn {
   const abortRef = useRef<AbortController | null>(null);
 
   const reset = useCallback(() => setState(INITIAL), []);
+  const dismissLimit = useCallback(
+    () => setState((s) => ({ ...s, limited: null })),
+    [],
+  );
 
   const cancel = useCallback(() => {
     abortRef.current?.abort();
@@ -65,7 +76,15 @@ export function useAgent(): UseAgentReturn {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setState({ loading: true, steps: [], text: "", sources: [], kind: null, error: null });
+    setState({
+      loading: true,
+      steps: [],
+      text: "",
+      sources: [],
+      kind: null,
+      error: null,
+      limited: null,
+    });
 
     let finalText = "";
     let finalSources: SearchSource[] = [];
@@ -75,9 +94,28 @@ export function useAgent(): UseAgentReturn {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(input),
+        // Merge in any BYOK keys stored in this browser so the request runs on
+        // the user's own quota (and unlocks Claude). Read at call time so a
+        // just-saved key takes effect without remounting.
+        body: JSON.stringify({
+          ...input,
+          userKeys: getUserKeys(),
+          clientId: getClientId(),
+        }),
         signal: controller.signal,
       });
+      if (res.status === 429) {
+        // Demo limit hit — surface the upgrade prompt instead of a raw error.
+        let reason: LimitReason = "user";
+        try {
+          const j = (await res.json()) as { reason?: LimitReason };
+          if (j.reason) reason = j.reason;
+        } catch {
+          /* keep default */
+        }
+        setState((s) => ({ ...s, loading: false, limited: reason }));
+        return { text: "", sources: [], kind: null };
+      }
       if (!res.ok || !res.body) {
         throw new Error(`Request failed (${res.status})`);
       }
@@ -143,5 +181,5 @@ export function useAgent(): UseAgentReturn {
     return { text: finalText, sources: finalSources, kind: finalKind };
   }, []);
 
-  return { ...state, ask, cancel, reset };
+  return { ...state, ask, cancel, reset, dismissLimit };
 }

@@ -3,16 +3,21 @@ import { resolveModel } from "@/lib/provider";
 import {
   searchTavily,
   resolveEffectiveDomains,
+  resolveFactualDomains,
   type TavilyOptions,
 } from "@/lib/tavily";
 import {
   decisionSchema,
-  assessmentSchema,
+  groundingSchema,
+  isGameContentKind,
   type QuestionKind,
 } from "./schemas";
 import type { AgentStateType, RetrievedResult } from "./state";
 
-export const MAX_SEARCHES = 2;
+// Up to three passes: an opinion/question-shaped pass, a cross-reference pass,
+// and a dedicated factual (wiki) pass when the ground node finds the hard facts
+// missing. Tavily basic searches are fast, so the latency budget holds.
+export const MAX_SEARCHES = 3;
 
 // Subjective questions ("what's best?", "is X worth it?", strategy, lore
 // interpretation) benefit from cross-referencing two sources. Objective
@@ -44,6 +49,13 @@ function shapeQuery(query: string, kind: QuestionKind): string {
     default:
       return query;
   }
+}
+
+// Shape a definitional/factual follow-up query toward the hard facts (what the
+// subject does, its numbers, where it is) rather than community opinion. The
+// nextQuery from the ground node is already definitional; this nudges it.
+function shapeFactualQuery(query: string): string {
+  return `${query} effect OR mechanic OR how it works`;
 }
 
 // Tavily depth: 'advanced' returns longer snippets, costs more credits.
@@ -99,17 +111,23 @@ export async function decideNode(
 
   try {
     const { object } = await generateObject({
-      model: resolveModel(state.modelId),
+      model: resolveModel(state.modelId, state.keys),
       schema: decisionSchema,
       prompt: contextLines.join("\n"),
     });
+    // Force a search for any game-content question, even if the model thought
+    // it could answer from memory. Game facts must be grounded in a source;
+    // answering "from training" is exactly how the Prayer-skill bug happened.
+    // (Mirrors D3: search rather than risk a wrong/uncited answer.)
+    const needsSearch = object.needsSearch || isGameContentKind(object.kind);
     return {
-      needsSearch: object.needsSearch,
+      needsSearch,
       kind: object.kind,
       spoilerRisk: object.spoilerRisk,
+      subject: object.subject ?? null,
       nextQuery: object.query ?? state.query,
       currentStep: "decide",
-      stepMessage: object.needsSearch
+      stepMessage: needsSearch
         ? "Consulting the wikis…"
         : "Answering from memory…",
     };
@@ -120,6 +138,7 @@ export async function decideNode(
       needsSearch: true,
       kind: "other",
       spoilerRisk: "minor",
+      subject: null,
       nextQuery: state.query,
       currentStep: "decide",
       stepMessage: "Consulting the wikis…",
@@ -132,13 +151,24 @@ export async function searchNode(
   state: AgentStateType,
 ): Promise<Partial<AgentStateType>> {
   const baseQuery = state.nextQuery ?? state.query;
-  const query = shapeQuery(baseQuery, state.kind);
-  const { include, exclude } = resolveEffectiveDomains(state.game);
-  const raw = await searchTavily(query, {
-    includeDomains: include,
-    excludeDomains: exclude,
-    searchDepth: depthFor(state.kind),
-  });
+  // A factual pass targets the definitional wiki page: drop opinion domains and
+  // shape toward "what it does" instead of "what people recommend".
+  const factual = state.nextQueryIsFactual;
+  const query = factual
+    ? shapeFactualQuery(baseQuery)
+    : shapeQuery(baseQuery, state.kind);
+  const { include, exclude } = factual
+    ? resolveFactualDomains(state.game)
+    : resolveEffectiveDomains(state.game);
+  const raw = await searchTavily(
+    query,
+    {
+      includeDomains: include,
+      excludeDomains: exclude,
+      searchDepth: depthFor(state.kind),
+    },
+    state.keys.tavily,
+  );
   const offset = state.results.length;
   const indexed: RetrievedResult[] = raw.map((r, i) => ({
     index: offset + i + 1,
@@ -151,28 +181,41 @@ export async function searchNode(
     results: indexed,
     retrievalCount: state.retrievalCount + 1,
     queriesRun: [baseQuery],
+    // One-shot directive: consume it so the next pass defaults to a normal
+    // search unless the ground node asks for another factual one.
+    nextQueryIsFactual: false,
     currentStep: "search",
-    stepMessage: `Found ${indexed.length} source${indexed.length === 1 ? "" : "s"} for "${baseQuery}"`,
+    stepMessage: factual
+      ? `Checking the wiki for "${baseQuery}"`
+      : `Found ${indexed.length} source${indexed.length === 1 ? "" : "s"} for "${baseQuery}"`,
   };
 }
 
-// ── assess: enough context, or search again? ───────────────────────────
-export async function assessNode(
+// ── ground: do the sources hold the hard FACTS, or search again? ────────
+// Replaces the old "is this enough?" assess node with a fact-aware check: even
+// when we have plenty of opinion-shaped results (e.g. Reddit build posts), if
+// they don't establish what the subject actually *does*, we fire one more,
+// wiki-prioritised, definitional search. This is the gate that catches the
+// Prayer-skill failure mode.
+export async function groundNode(
   state: AgentStateType,
 ): Promise<Partial<AgentStateType>> {
-  // Hard cap.
+  // Hard cap — we've searched as much as we will. Keep whatever grounding
+  // confidence the last assessment established.
   if (state.retrievalCount >= MAX_SEARCHES) {
     return {
       hasEnoughContext: true,
-      currentStep: "assess",
+      currentStep: "ground",
       stepMessage: "Cross-referencing sources…",
     };
   }
-  // For lookup-shaped kinds, one good search usually suffices.
+  // Objective lookup kinds (item/mechanic) hit the wiki on the first pass and
+  // one good page usually carries the facts — trust it, skip the extra call.
   if (!SHOULD_DO_SECOND_SEARCH[state.kind] && state.results.length > 0) {
     return {
       hasEnoughContext: true,
-      currentStep: "assess",
+      hasFactualGrounding: true,
+      currentStep: "ground",
       stepMessage: "Cross-referencing sources…",
     };
   }
@@ -186,31 +229,37 @@ export async function assessNode(
     .join("\n");
   try {
     const { object } = await generateObject({
-      model: resolveModel(state.modelId),
-      schema: assessmentSchema,
+      model: resolveModel(state.modelId, state.keys),
+      schema: groundingSchema,
       prompt: [
         `Question: "${state.query}"`,
         `Question kind: ${state.kind}`,
+        state.subject ? `Subject (whose facts matter): ${state.subject}` : "",
         `Queries already run: ${state.queriesRun.join(" | ")}`,
         "",
         "Retrieved so far:",
         sample || "(none)",
         "",
-        "Is this enough to answer thoroughly? If not, suggest ONE different complementary query.",
-      ].join("\n"),
+        "Do these sources establish the hard FACTS needed to answer — what the subject actually does, its numbers/effects, where it is — and not just opinions or build chatter? If not, suggest ONE definitional query (include the game name and subject) that would fetch the wiki page stating those facts, and set nextQueryIsFactual=true.",
+      ]
+        .filter(Boolean)
+        .join("\n"),
     });
     return {
       hasEnoughContext: object.hasEnough,
+      hasFactualGrounding: object.hasEnough,
       nextQuery: object.nextQuery,
-      currentStep: "assess",
+      nextQueryIsFactual: object.nextQueryIsFactual,
+      currentStep: "ground",
       stepMessage: object.hasEnough
         ? "Cross-referencing sources…"
-        : `Digging deeper: "${object.nextQuery ?? ""}"`,
+        : `Checking the wiki: "${object.nextQuery ?? object.missingFact ?? ""}"`,
     };
   } catch {
     return {
       hasEnoughContext: true,
-      currentStep: "assess",
+      hasFactualGrounding: state.results.length > 0,
+      currentStep: "ground",
       stepMessage: "Cross-referencing sources…",
     };
   }

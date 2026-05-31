@@ -1,4 +1,4 @@
-# Hearthnote — Architecture
+# Wyrdscribe — Architecture
 
 A local-first gaming companion. Per-playthrough memory persists in IndexedDB;
 chat is a LangGraph agent that searches the web (Tavily) and answers with
@@ -18,7 +18,7 @@ client).
   `generateObject`). We call providers **directly** via `@ai-sdk/anthropic` and
   `@ai-sdk/groq` — no Vercel AI Gateway. See [decisions.md](./decisions.md).
 - **LangGraph** (`@langchain/langgraph`) — orchestrates the chat agent
-  (`decide → search → assess → [loop] → generate`). The model never emits tool
+  (`decide → search → ground → [loop] → generate`). The model never emits tool
   calls; our code drives retrieval. This is what makes free Groq models
   reliable here. See [decisions.md](./decisions.md).
 - **Tavily** — web search API, scoped to game wikis (wiki.gg, fextralife.com)
@@ -82,10 +82,10 @@ lib/
   parse-proposals.ts         # extracts [MEMORY_PROPOSAL] blocks
   agent/                     # LangGraph agent
     state.ts                 # Annotation.Root state with reducers
-    schemas.ts               # zod schemas for decide + assess
-    nodes.ts                 # decideNode, searchNode, assessNode (+ MAX_SEARCHES)
+    schemas.ts               # zod schemas for decide + ground; kind partition helpers
+    nodes.ts                 # decideNode, searchNode, groundNode (+ MAX_SEARCHES)
     generate.ts              # streamAnswer() — streamText over gathered context
-    graph.ts                 # decide → (search → assess → loop) → END
+    graph.ts                 # decide → (search → ground → loop) → END
     stream-bridge.ts         # runs graph, streams SSE events to the client
     events.ts                # AgentEvent union: progress | sources | token | done | error
 ```
@@ -94,8 +94,9 @@ lib/
 
 ## Data model (Dexie)
 
-Three tables in IndexedDB (db name `lorekeeper` — legacy from before the
-Hearthnote rebrand; kept so existing local data survives), version 1:
+Three tables in IndexedDB (db name `lorekeeper` — legacy working name, kept
+across the Hearthnote/Wyrdscribe rebrands so existing local data survives),
+version 1:
 
 - **`games`** — `{ id, name, createdAt }`
 - **`playthroughs`** — long-lived (days/months); one game, one character.
@@ -129,21 +130,27 @@ START ───►  │  decide  │ ──────────────�
                   │ needsSearch=true
                   ▼
             ┌──────────┐         ┌──────────┐ hasEnough=true or
-            │  search  │ ──────► │  assess  │ retrievalCount ≥ MAX_SEARCHES
+            │  search  │ ──────► │  ground  │ retrievalCount ≥ MAX_SEARCHES
             └──────────┘         └──────────┘ ────► END
                   ▲                   │
-                  └───────────────────┘ hasEnough=false
+                  └───────────────────┘ hasEnough=false (facts missing)
 ```
 
-- **`decide`** — `generateObject` returns `{ needsSearch, query }`. If
-  search is needed, sets `nextQuery`. Falls back to **search-anyway** on
-  error (better than risking hallucinated citations).
+- **`decide`** — `generateObject` returns `{ needsSearch, query, subject, kind,
+  spoilerRisk }`. **Forces search for any game-content kind** (only `meta`/`other`
+  may answer from memory) — game facts must be grounded. Falls back to
+  **search-anyway** on error.
 - **`search`** — calls Tavily, appends indexed `RetrievedResult`s to state
   (`results` reducer concatenates across loops). Indices are 1-based, sequential
-  across loop iterations — citations stay stable.
-- **`assess`** — `generateObject` returns `{ hasEnough, nextQuery }`.
-  `MAX_SEARCHES` (currently 2) hard-caps the loop. Falls back to
-  `hasEnough: true` on error.
+  across loop iterations — citations stay stable. A **factual pass**
+  (`nextQueryIsFactual`) drops community/opinion domains via
+  `resolveFactualDomains` and targets the definitional wiki page.
+- **`ground`** — `generateObject` (`groundingSchema`) judges whether the
+  retrieved sources hold the hard **facts** (not just opinion). If not, it
+  returns a definitional `nextQuery` (with `nextQueryIsFactual=true`) and loops.
+  `MAX_SEARCHES` (currently 3) hard-caps the loop. Sets `hasFactualGrounding`,
+  read by the answer prompt's grounding contract. Falls back to `hasEnough: true`
+  on error.
 
 After the graph ends, [`stream-bridge.ts`](../lib/agent/stream-bridge.ts) runs
 **`streamAnswer`** ([`lib/agent/generate.ts`](../lib/agent/generate.ts)) — a

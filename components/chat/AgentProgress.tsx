@@ -8,7 +8,7 @@ import type { IconName } from "@/lib/icon-paths";
 const STEP_ICON: Record<string, IconName> = {
   decide: "crystal-ball",
   search: "magnifying-glass",
-  assess: "scroll-unfurled",
+  ground: "scroll-unfurled",
   generate: "quill-ink",
 };
 
