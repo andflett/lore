@@ -101,7 +101,7 @@ export function ChatInput({
         rows={hero ? 2 : 1}
         placeholder={
           hero
-            ? "How may I guide you…"
+            ? "Anything about your playthrough…"
             : "What else can I help with?"
         }
         className={`w-full resize-none overflow-y-auto border-0 bg-transparent p-0 leading-relaxed text-text-t2 outline-none placeholder:text-text-dim ${
