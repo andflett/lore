@@ -124,6 +124,24 @@ to cite well (it under-cites at `'low'`).
 
 ---
 
+### Model states a wrong game "fact" confidently from training data
+
+**Symptom:** Asked "should I use the Prayer skill for my build?", the model
+described the skill as something it isn't, sourced from training. The retrieved
+sources were build-opinion posts (Reddit), not the wiki page that states what
+the skill does.
+
+**Cause + fix:** Two compounding bugs, both fixed — see
+[decisions.md D17](./decisions.md). The build-shaped query never fetched the
+definitional source, and the no-results prompt told the model to answer "from
+training knowledge" with no hedging. The `ground` node now fires a
+wiki-prioritised factual search when the hard facts are missing, and the answer
+prompt's grounding contract makes the model refuse to state mechanics no source
+confirms (point to the wiki instead). If you ever loosen that contract, this
+regresses.
+
+---
+
 ## Anthropic
 
 ### Claude Pro ≠ API access

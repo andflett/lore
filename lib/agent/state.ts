@@ -25,6 +25,9 @@ export const AgentState = Annotation.Root({
   needsSearch: Annotation<boolean>({ reducer: (_, n) => n, default: () => false }),
   kind: Annotation<QuestionKind>({ reducer: (_, n) => n, default: () => "other" }),
   spoilerRisk: Annotation<SpoilerRisk>({ reducer: (_, n) => n, default: () => "none" }),
+  // The core game noun the question hinges on (e.g. "Prayer skill"). Drives the
+  // definitional/factual follow-up search in the ground loop.
+  subject: Annotation<string | null>({ reducer: (_, n) => n, default: () => null }),
 
   // ── Retrieval (accumulates across loops) ──────────────────────
   results: Annotation<RetrievedResult[]>({
@@ -37,7 +40,16 @@ export const AgentState = Annotation.Root({
     default: () => [],
   }),
   nextQuery: Annotation<string | null>({ reducer: (_, n) => n, default: () => null }),
+  // Whether the *next* search should target wiki/definitional sources (drop
+  // community opinion domains). Set by the ground node when facts are missing.
+  nextQueryIsFactual: Annotation<boolean>({ reducer: (_, n) => n, default: () => false }),
   hasEnoughContext: Annotation<boolean>({
+    reducer: (_, n) => n,
+    default: () => false,
+  }),
+  // Whether the retrieved sources actually contain the hard facts needed to
+  // answer (not just opinion). Read by the answer prompt's grounding contract.
+  hasFactualGrounding: Annotation<boolean>({
     reducer: (_, n) => n,
     default: () => false,
   }),

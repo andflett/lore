@@ -336,3 +336,85 @@ Old "Lorekeeper" mentions only legitimately survive in (a) the IndexedDB
 name string, (b) planning-folder filenames, (c)
 [`docs/naming.md`](./naming.md) and this entry as records of the rename.
 A grep for `Lorekeeper` outside those locations is a regression.
+
+---
+
+## D17 · Fact-aware grounding loop + "refuse the unverified fact" voice
+
+**Decision:** The agent now distinguishes *opinion* from *hard facts* and
+refuses to assert the latter without a source.
+
+- The old `assess` node ("is this enough?") became **`ground`**: a
+  `generateObject` (`groundingSchema`) call that judges whether the retrieved
+  sources actually establish the hard **facts** (what the subject does, its
+  numbers/effects, where it is) — not just opinion. If they don't, it returns a
+  definitional `nextQuery` with `nextQueryIsFactual: true` and the graph loops
+  one more time.
+- A **factual search pass** drops community/opinion domains
+  (`resolveFactualDomains`, currently filters out `reddit.com`) and shapes the
+  query toward "what it does", so the definitional wiki page wins.
+- **`decide` force-searches every game-content kind** (`isGameContentKind` —
+  everything except `meta`/`other`). A game question never answers "from
+  memory."
+- `MAX_SEARCHES` 2 → **3** so an opinion pass, a cross-ref pass, and a factual
+  pass can coexist.
+- The generate prompt ([`build-answer-prompt.ts`](../lib/build-answer-prompt.ts))
+  gained a **grounding contract**: state mechanics/numbers/locations as fact
+  *only* when a source backs them with `[n]`; if the sources are opinion-only,
+  say plainly they don't confirm it and point to the wiki — still answering the
+  groundable parts. The no-results branch for game-content kinds now *refuses
+  the unverifiable specific* instead of the old "answer from training knowledge,
+  no disclaimers" (the line that directly produced the bug below). Conversational
+  kinds (meta/other) keep answering from general knowledge.
+
+**Why:** A player asked "should I use the Prayer skill for my build?" and
+gpt-oss confidently described Prayer as something it isn't, sourced from
+training data. Root cause was twofold: (1) the build-shaped query retrieved 5
+Reddit opinion posts and never the wiki page stating what Prayer does, and (2)
+the prompt told the model to fill gaps from memory with no hedging. The model
+backfilled the factual gap with a wrong "fact" and cited Reddit for tone — and
+because `sources.length > 0`, even the "unsourced" badge stayed hidden. The
+grounding loop fetches the missing facts; the contract stops the model asserting
+what no source confirms.
+
+**Voice choice (Andrew):** *refuse the factual part* — give grounded + opinion
+answers, but decline to state unverified mechanics rather than hedge-and-assert.
+
+**Tradeoff:** Up to one extra Tavily call + one extra `generateObject` on
+build/boss/quest/lore questions (objective item/mechanic lookups still
+short-circuit after one good wiki hit). Worth it — a wrong "fact" stated
+confidently is the failure this tool most needs to avoid.
+
+**Shared partition:** `CONVERSATIONAL_KINDS` / `isGameContentKind` now live in
+[`schemas.ts`](../lib/agent/schemas.ts) and are imported by both the agent and
+`AssistantMessage` (was a local copy in the component) so the "is this
+game-content?" judgement can't drift between the prompt and the UI badge.
+
+---
+
+## D18 · Re-evaluated model-side search — still keep retrieval in code
+
+**Decision:** Revisited the D2/D4 "the model never emits tool calls" rule while
+fixing D17, since the obvious alternative ("just let the model search for the
+facts itself") was on the table. Kept retrieval in code; gave the model agency
+over *what we fetch next* through `generateObject` (the `ground` node) instead.
+
+**Why, beyond the original Groq tool-call breakage:**
+
+1. **Provider bifurcation.** The D2/D4 failures are provider-side 400s on the
+   *default* free models (gpt-oss, llama). Native tool-search would only work on
+   Anthropic — splitting behavior by provider for the exact feature meant to
+   make answers *more* reliable.
+2. **Citation stability.** Our `[n]` indices are assigned in code and re-ranked
+   by the per-game domain priority list ([D13](#d13--source-allowlist-lives-on-game-not-playthrough),
+   [`tavily.ts`](../lib/tavily.ts)). Model-driven tool calls would retrieve in an
+   order we don't control, breaking stable, re-rankable citations.
+3. **Same benefit without the risk.** The point was "the hard facts get
+   fetched." The `ground` node achieves that deterministically via the one thing
+   Groq is reliable at — structured JSON — with no tool-call surface.
+
+**Empirical re-check (pending):** [`scripts/groq-toolcall-repro.ts`](../scripts/groq-toolcall-repro.ts)
+probes whether current gpt-oss-120b still 400s when given a tool / a "search
+tool" mention. It could **not** be run in the web sandbox (network policy blocks
+`api.groq.com`; no `GROQ_API_KEY`). Run it locally to confirm; the decision
+stands regardless on arguments 1–3.

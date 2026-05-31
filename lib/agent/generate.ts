@@ -26,6 +26,7 @@ export function streamAnswer(
     hasResults: state.results.length > 0,
     kind: state.kind,
     spoilerRisk: state.spoilerRisk,
+    hasFactualGrounding: state.hasFactualGrounding,
   });
 
   // Observability: track payload growth across turns so we know when to
