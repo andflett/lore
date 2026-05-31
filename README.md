@@ -6,6 +6,10 @@ All data lives in your browser (IndexedDB). No account, no cloud sync, no teleme
 
 **Try it:** [wyrdscribe.app](https://wyrdscribe.app) — no sign-up. The free demo is rate-limited; [bring your own key](#bring-your-own-key-byok) or [self-host](#self-hosting) for unlimited use.
 
+**Run your own in one click:**
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fandflett%2Flore&env=GROQ_API_KEY,TAVILY_API_KEY,ANTHROPIC_API_KEY&envDescription=GROQ%20%2B%20TAVILY%20required%3B%20ANTHROPIC%20optional&envLink=https%3A%2F%2Fgithub.com%2Fandflett%2Flore%23environment-variables)
+
 ---
 
 ## Features
