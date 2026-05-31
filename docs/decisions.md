@@ -306,20 +306,22 @@ shared primitives may use raw elements internally):
 
 ---
 
-## D16 · Rebranded from "Lorekeeper" to "Hearthnote"; IndexedDB name retained
+## D16 · Rebranded "Lorekeeper" → "Hearthnote" → "Wyrdscribe"; IndexedDB name retained
 
-**Decision:** The app's visible brand is **Hearthnote**. Visible strings
-(header wordmark, `<title>`, `package.json` name, all doc front matter)
-were updated in a single sweep. The **IndexedDB database is still named
-`lorekeeper`** (`super("lorekeeper")` in
+**Decision:** The app's visible brand is **Wyrdscribe** (live at
+`wyrdscribe.app`). Visible strings (header wordmark, `<title>`,
+`package.json` name, doc front matter) follow the brand. The **IndexedDB
+database is still named `lorekeeper`** (`super("lorekeeper")` in
 [`lib/db.ts`](../lib/db.ts)), and the historical planning artifacts under
 `.claude/planning/` keep their original `lorekeeper-*` filenames.
 
-**Why brand-only:** "Lorekeeper" was a working name and turned out to be
-heavily used — a Final Fantasy ability, several WoW guild add-ons, multiple
-itch.io games. See [`docs/naming.md`](./naming.md) for the shortlist
-review; **Hearthnote** won (hearth = home/safe-room, note = the records
-the player keeps).
+**Why it changed twice:** "Lorekeeper" was a working name and turned out to
+be heavily used — a Final Fantasy ability, several WoW guild add-ons,
+multiple itch.io games. The shortlist in [`docs/naming.md`](./naming.md)
+first landed on **Hearthnote**, but the brand ultimately shipped as
+**Wyrdscribe** (wyrd = fate/destiny + scribe = the keeper of records) — a
+sharper fit for the dark-fantasy tone. `naming.md` is kept as the historical
+shortlist; Wyrdscribe post-dates it.
 
 **Why keep the IndexedDB name:** renaming the db would orphan existing
 local data (every playthrough + session + memory block on every user's
@@ -331,11 +333,13 @@ never see the db name. Trade reads cleanly in favour of leaving it alone.
 artifacts — the original spec and prototype. Renaming would break the
 in-repo links and lose provenance.
 
-**How to apply going forward:** any new user-facing text says "Hearthnote."
-Old "Lorekeeper" mentions only legitimately survive in (a) the IndexedDB
-name string, (b) planning-folder filenames, (c)
-[`docs/naming.md`](./naming.md) and this entry as records of the rename.
-A grep for `Lorekeeper` outside those locations is a regression.
+**How to apply going forward:** any new user-facing text says "Wyrdscribe."
+Old "Lorekeeper"/"Hearthnote" mentions only legitimately survive in (a) the
+IndexedDB name string (`lorekeeper`), (b) planning-folder filenames, (c)
+[`docs/naming.md`](./naming.md), (d) the rebrand-chain comment in
+[`lib/db.ts`](../lib/db.ts), and (e) this entry — all as records of the
+renames. A grep for `Lorekeeper` or `Hearthnote` outside those locations is
+a regression.
 
 ---
 

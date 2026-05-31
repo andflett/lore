@@ -1,4 +1,4 @@
-# Hearthnote — Architecture
+# Wyrdscribe — Architecture
 
 A local-first gaming companion. Per-playthrough memory persists in IndexedDB;
 chat is a LangGraph agent that searches the web (Tavily) and answers with
@@ -94,8 +94,9 @@ lib/
 
 ## Data model (Dexie)
 
-Three tables in IndexedDB (db name `lorekeeper` — legacy from before the
-Hearthnote rebrand; kept so existing local data survives), version 1:
+Three tables in IndexedDB (db name `lorekeeper` — legacy working name, kept
+across the Hearthnote/Wyrdscribe rebrands so existing local data survives),
+version 1:
 
 - **`games`** — `{ id, name, createdAt }`
 - **`playthroughs`** — long-lived (days/months); one game, one character.
