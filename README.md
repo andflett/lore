@@ -4,7 +4,11 @@
 
 All data lives in your browser (IndexedDB). No account, no cloud sync, no telemetry.
 
-**Try it:** [wyrdscribe.app](https://wyrdscribe.app) — no sign-up. Or self-host below.
+**Try it:** [wyrdscribe.app](https://wyrdscribe.app) — no sign-up. The free demo is rate-limited; [bring your own key](#bring-your-own-key-byok) or [self-host](#self-hosting) for unlimited use.
+
+**Run your own in one click:**
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fandflett%2Flore&env=GROQ_API_KEY,TAVILY_API_KEY,ANTHROPIC_API_KEY&envDescription=GROQ%20%2B%20TAVILY%20required%3B%20ANTHROPIC%20optional&envLink=https%3A%2F%2Fgithub.com%2Fandflett%2Flore%23environment-variables)
 
 ---
 
@@ -16,6 +20,20 @@ All data lives in your browser (IndexedDB). No account, no cloud sync, no teleme
 - **Session summaries** — end a session and get an AI-generated summary with proposed memory updates to keep for next time
 - **Multiple playthroughs** — separate runs, separate memory, separate history
 - **Local-first** — IndexedDB, no backend persistence; data never leaves the device
+- **Bring your own key** — use the free shared demo, or add your own Anthropic/Tavily keys for Claude-quality answers and no limits
+
+## Bring your own key (BYOK)
+
+The free hosted demo runs on a shared free tier (Groq + limited wiki search) and is rate-limited. To remove the limits **and** unlock Claude (higher-quality answers and citations), add your own keys — no account needed:
+
+1. Open **Settings** — the lantern icon, top-right.
+2. Paste either or both:
+   - **Anthropic** — enables Claude (Haiku / Sonnet) + prompt caching. [Get a key](https://console.anthropic.com) (pay-as-you-go; Claude Pro does **not** include API access).
+   - **Tavily** — runs wiki search on your own quota. [Get a key](https://app.tavily.com) (free tier available).
+
+That's it — your next message uses them. Pick the model per playthrough with the model switcher in the chat box.
+
+**Where your keys live:** only in this browser (`localStorage`). They're sent to the server *solely* to make your own requests and are never logged or stored server-side. Groq stays on the host's key (it's the free default) — only Anthropic and Tavily are yours to override. Want total control? [Self-host](#self-hosting) — then everything runs on your own deployment.
 
 ## Stack
 
@@ -55,6 +73,8 @@ TAVILY_API_KEY=tvly_...      # web search; required for wiki lookups
 - **Tavily** — [app.tavily.com](https://app.tavily.com) — free tier available
 
 If `ANTHROPIC_API_KEY` is missing the app falls back to the default Groq model and remains fully functional.
+
+A self-hosted instance is **unlimited by default** — the rate limits only apply if you opt in. If you're putting up your *own* public demo and want to cap what visitors spend on your keys, set the optional `UPSTASH_*` / `DEMO_DAILY_*` variables (see [`.env.example`](.env.example)); visitors who bring their own key always bypass the cap.
 
 ## Development
 
