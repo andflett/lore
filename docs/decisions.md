@@ -418,3 +418,45 @@ probes whether current gpt-oss-120b still 400s when given a tool / a "search
 tool" mention. It could **not** be run in the web sandbox (network policy blocks
 `api.groq.com`; no `GROQ_API_KEY`). Run it locally to confirm; the decision
 stands regardless on arguments 1–3.
+
+---
+
+## D19 · Anthropic prompt caching on the generate step only
+
+**Decision:** Attach an ephemeral `cacheControl` breakpoint to the **system
+prompt** and the **end of the conversation-history prefix** in `streamAnswer`
+([`lib/agent/generate.ts`](../lib/agent/generate.ts)), gated to the Anthropic
+provider via `isAnthropic()` ([`lib/provider.ts`](../lib/provider.ts)). The
+current user turn — which carries the freshly-retrieved search results — is left
+**uncached**.
+
+**Why:** Token cost is dominated by the `generate` step's input (system + memory
++ history + injected results). The system prompt and history prefix repeat every
+turn within a session, so caching them turns most of that input into ~10%-priced
+cache reads. The search results differ every turn, so caching them would only
+pay the write premium for no reuse — they stay out of the cached prefix (placed
+last, after the breakpoint).
+
+**Why generate-only:**
+- The `decide`/`ground` `generateObject` prompts are small (~700–1000 tokens) —
+  below Anthropic's **2048-token minimum cacheable prefix for Haiku** (1024 for
+  Sonnet/Opus). They'd never cache, so we don't add the complexity.
+- Even the generate prefix only clears the Haiku floor once a session's history
+  grows, so caching is a **no-op on short chats** and an honest win mainly in
+  longer sessions. Acceptable — it costs nothing when it doesn't apply.
+
+**Why gated:** Groq has no cache-control concept; attaching `cacheControl` to a
+Groq message is at best ignored and at worst an error. `isAnthropic()` also
+returns false when the Anthropic key is missing (the call would fall back to the
+default Groq model — see [D1](#d1--direct-provider-sdks-not-the-vercel-ai-gateway)),
+so we never tag a request that won't actually hit Anthropic.
+
+**Mechanism note:** Caching uses the AI SDK's
+`providerOptions.anthropic.cacheControl: { type: 'ephemeral' }` on `ModelMessage`s
+(not the raw Anthropic SDK's `cache_control` blocks). This required moving the
+system prompt from the top-level `system` param into a `role: 'system'` message
+so a breakpoint can sit on it. Default TTL (5m) — turns land within minutes.
+
+**Tradeoff:** Default model is still Groq, so this is dormant until a playthrough
+runs on Haiku/Sonnet. Shipped now as cheap, gated groundwork for the Claude
+default discussed alongside this change.

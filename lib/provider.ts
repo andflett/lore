@@ -36,3 +36,10 @@ export function resolveModel(id: string): LanguageModel {
   }
   return makeModel(id);
 }
+
+// True if the id resolves to Anthropic *and* a key is present — i.e. the call
+// won't fall back to the default Groq model. Used to gate Anthropic-only
+// features like prompt caching, so we never attach cacheControl to a Groq call.
+export function isAnthropic(id: string): boolean {
+  return id.startsWith("anthropic/") && !!process.env.ANTHROPIC_API_KEY;
+}
