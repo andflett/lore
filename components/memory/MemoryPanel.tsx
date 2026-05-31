@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { SwipeableList, Type as SwipeType } from "react-swipeable-list";
+import "react-swipeable-list/dist/styles.css";
 import type { MemoryCategory, Playthrough } from "@/lib/types";
 import { MEMORY_CATEGORIES } from "@/lib/types";
 import {
@@ -47,7 +49,9 @@ export function MemoryPanel({ open, onClose, playthrough }: Props) {
           return (
             <section key={cat}>
               <SectionLabel>{cat}</SectionLabel>
-              <ul className="space-y-1.5">
+              {/* IOS type = swipe reveals the action buttons; optOutMouseEvents
+                  keeps desktop on the hover affordance instead of mouse-drag. */}
+              <SwipeableList type={SwipeType.IOS} optOutMouseEvents threshold={0.4}>
                 {blocks.map((b) => (
                   <MemoryBlockRow
                     key={b.id}
@@ -56,7 +60,7 @@ export function MemoryPanel({ open, onClose, playthrough }: Props) {
                     onRemove={() => removeMemoryBlock(playthrough.id, b.id)}
                   />
                 ))}
-              </ul>
+              </SwipeableList>
             </section>
           );
         })}

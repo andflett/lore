@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { MemoryProposalCard } from "@/components/memory/MemoryProposalCard";
 import Link from "next/link";
 import { EmptySessionState } from "./EmptySessionState";
 import type { ChatInputHandle } from "./ChatInput";
@@ -21,7 +22,6 @@ import { useAgent } from "@/hooks/useAgent";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { AgentProgress } from "./AgentProgress";
-import { MemoryProposalToast } from "@/components/memory/MemoryProposalToast";
 
 const STARTERS = ["Where do I find ", "How do I beat ", "Best build for "];
 
@@ -78,18 +78,19 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
   // Keep the latest message visible.
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [messages, text, steps]);
+  }, [messages, text, steps, proposals]);
 
-  const acceptProposal = async (proposal: ProposedMemoryUpdate) => {
+  const acceptProposal = async (index: number, proposal: ProposedMemoryUpdate) => {
     await addMemoryBlock(playthrough.id, {
       category: proposal.category,
       content: proposal.content,
       source: "ai",
     });
-    // The toast may pass back an edited copy (different reference) so we always
-    // pop the first item — toasts are shown one at a time in queue order.
-    setProposals((p) => p.slice(1));
+    setProposals((p) => p.filter((_, i) => i !== index));
   };
+
+  const dismissProposal = (index: number) =>
+    setProposals((p) => p.filter((_, i) => i !== index));
 
   // Strip proposals from streaming text too so they don't briefly flash in the bubble.
   const streamingText = useMemo(() => parseProposals(text).text, [text]);
@@ -170,6 +171,17 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
                 {error}
               </div>
             )}
+            <AnimatePresence>
+              {!readOnly &&
+                proposals.map((p, i) => (
+                  <MemoryProposalCard
+                    key={`${p.category}-${i}-${p.content}`}
+                    proposal={p}
+                    onAccept={(edited) => acceptProposal(i, edited)}
+                    onDismiss={() => dismissProposal(i)}
+                  />
+                ))}
+            </AnimatePresence>
           </div>
         )}
       </div>
@@ -200,16 +212,6 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
           </div>
         </div>
       )}
-
-      <AnimatePresence>
-        {proposals.length > 0 && (
-          <MemoryProposalToast
-            proposal={proposals[0]}
-            onAccept={acceptProposal}
-            onDismiss={() => setProposals((p) => p.slice(1))}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

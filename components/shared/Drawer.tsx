@@ -30,12 +30,12 @@ export function Drawer({ open, onClose, title, children }: Props) {
             onClick={onClose}
           />
           <motion.div
-            className="fixed inset-y-0 right-0 z-50 flex w-[min(420px,100vw)] flex-col border-l-2 border-gold"
+            className="fixed inset-y-0 right-0 z-50 flex w-[min(420px,100vw)] flex-col border-l-2 border-gold-b2"
             style={{
               background: `${NOISE_TEX} repeat, linear-gradient(180deg, var(--color-stone-s1) 0%, var(--color-stone-s0) 100%)`,
               backgroundSize: "256px 256px, 100% 100%",
               boxShadow:
-                "inset 1px 0 0 var(--color-gold-b1), inset 0 0 80px rgba(0,0,0,0.5), -8px 0 24px rgba(0,0,0,0.7)",
+                "inset 0 0 80px rgba(0,0,0,0.5), -8px 0 24px rgba(0,0,0,0.7)",
             }}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
