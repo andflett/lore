@@ -155,14 +155,19 @@ the conversation list with mystery boxes. The user message is still saved
 
 ---
 
-## D8 · Toast queue: pop first, don't filter by reference
+## D8 · Memory proposals: quiet inline cards, removed by index
 
-**Decision:** `acceptProposal` / `dismiss` use `setProposals((p) => p.slice(1))`.
+**Decision:** AI memory suggestions render as `MemoryProposalCard`s inline in
+the message list (beneath the answer that prompted them), all queued proposals
+at once. `acceptProposal` / `dismiss` remove by index
+(`p.filter((_, i) => i !== index)`), not by reference.
 
-**Why:** The `MemoryProposalToast` lets the user edit the proposal before
-saving, which produces a new object reference. Filtering by `x !== proposal`
-silently failed because the reference didn't match. Toasts are shown one at a
-time in queue order, so popping the first item is always correct.
+**Why:** The original `MemoryProposalToast` was a gilded `Panel` fixed to the
+bottom-right — it floated over the chat and read as a popup demanding
+attention. Folding the suggestion into the conversation as a plain bordered
+note makes it an aside the player can ignore or act on in context. Removal is
+by index because the card lets the user edit the content before saving, which
+produces a new object reference — filtering by `x !== proposal` silently failed.
 
 ---
 

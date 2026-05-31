@@ -162,10 +162,11 @@ export function SourcesSection({ game }: Props) {
           <TextField
             value={adding}
             onChange={setAdding}
+            size="md"
             placeholder="Add a domain (e.g. taintedgrail.wiki.gg)"
             ariaLabel="Add a source domain"
           />
-          <Btn variant="confirm" size="sm" onClick={submitAdd}>
+          <Btn variant="confirm" size="md" onClick={submitAdd}>
             Add
           </Btn>
         </div>
@@ -188,10 +189,11 @@ export function SourcesSection({ game }: Props) {
           <TextField
             value={excluding}
             onChange={setExcluding}
+            size="md"
             placeholder="Exclude a domain"
             ariaLabel="Exclude a source domain"
           />
-          <Btn variant="dim" size="sm" onClick={submitExclude}>
+          <Btn variant="dim" size="md" onClick={submitExclude}>
             Exclude
           </Btn>
         </div>

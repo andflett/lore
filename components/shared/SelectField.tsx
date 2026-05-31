@@ -13,6 +13,8 @@ interface Props<T extends string> {
 
 // Themed native <select>. Children are <option> / <optgroup> elements
 // supplied by the caller — we own the chrome, callers own the options.
+// Font is locked at 16px (text-base) regardless of size — smaller and iOS
+// Safari zooms in on focus. Size only tunes padding.
 export function SelectField<T extends string>({
   value,
   onChange,
@@ -22,8 +24,8 @@ export function SelectField<T extends string>({
 }: Props<T>) {
   const sizing =
     size === "sm"
-      ? "px-2 py-1 text-[13px]"
-      : "px-3 py-2 text-[14px]";
+      ? "px-2 py-1 text-[16px]"
+      : "px-3 py-2 text-[16px]";
   return (
     <select
       value={value}

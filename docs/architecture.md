@@ -58,7 +58,7 @@ components/
                              # MessageBubble → User/AssistantMessage,
                              # MarkdownAnswer, SourcesFooter, AgentProgress
   memory/                    # MemoryPanel (drawer), MemoryBlockRow,
-                             # ModelPicker, MemoryProposalToast
+                             # ModelPicker, MemoryProposalCard
   session-end/               # SessionEndReview (modal)
   playthrough/               # PlaythroughClient (orchestrator)
 

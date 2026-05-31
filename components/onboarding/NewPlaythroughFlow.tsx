@@ -36,6 +36,18 @@ export function NewPlaythroughFlow() {
   const next = () => setStep((s) => s + 1);
   const back = () => setStep((s) => Math.max(0, s - 1));
 
+  // On step 0 there's nowhere to go "back" to within the flow. If the player
+  // got here from the sidebar's New Playthrough button (i.e. they already have
+  // playthroughs), give them a way out instead of a dead disabled button.
+  const hasExisting = playthroughs.length > 0;
+  const cancel = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
+
   const finish = async () => {
     setCreating(true);
     const game = await ensureGame(gameName.trim());
@@ -106,9 +118,15 @@ export function NewPlaythroughFlow() {
               {steps[step]}
 
               <div className="mt-6 flex items-center justify-between">
-                <Btn variant="dim" size="sm" onClick={back} disabled={step === 0}>
-                  Back
-                </Btn>
+                {step === 0 ? (
+                  <Btn variant="dim" size="sm" onClick={cancel} disabled={!hasExisting}>
+                    Cancel
+                  </Btn>
+                ) : (
+                  <Btn variant="dim" size="sm" onClick={back}>
+                    Back
+                  </Btn>
+                )}
                 {isLast ? (
                   <Btn variant="confirm" size="sm" onClick={finish} disabled={creating || !gameName.trim()}>
                     <GameIcon name="check-mark" size={12} /> Begin
