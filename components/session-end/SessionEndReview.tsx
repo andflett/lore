@@ -47,11 +47,21 @@ export function SessionEndReview({
   const [customContent, setCustomContent] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Reset the custom-memory form whenever the modal (re)opens. Done during
+  // render via the previous-prop pattern rather than in the effect, so we don't
+  // trigger a synchronous setState cascade inside the fetch effect.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) {
+      setCustomCategory("note");
+      setCustomContent("");
+    }
+  }
+
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
-    setCustomCategory("note");
-    setCustomContent("");
     (async () => {
       setLoading(true);
       setError(null);

@@ -503,3 +503,41 @@ north-star but Tavily lacks browser CORS, so it can't be fully client-side today
 own quota and unlock Claude; without them you get the free shared demo (Groq +
 the server's Tavily credits). BYOK requests will also bypass the Phase-3 demo
 caps. Owner-unlimited needs no auth: Andrew just uses BYOK with his own keys.
+
+---
+
+## D21 · Demo usage limiting via Upstash (global kill-switch + per-identity cap)
+
+**Decision:** `/api/chat` gates pure-demo requests through
+[`lib/usage.ts`](../lib/usage.ts) (`checkDemoLimit`), backed by Upstash Redis
+over plain REST `fetch` (no new dependency). Two per-UTC-day counters: a
+per-identity soft cap (`DEMO_DAILY_USER_LIMIT`, default 15) and a **global
+kill-switch** (`DEMO_DAILY_GLOBAL_LIMIT`, default 300) — the hard wallet guard.
+On exceed, the route returns `429 { error: "limit", reason }`; the client shows
+[`UpgradeModal`](../components/settings/UpgradeModal.tsx).
+
+**Key behaviours:**
+- **Disabled unless configured.** No `UPSTASH_REDIS_REST_URL`/`_TOKEN` →
+  `limitingEnabled` is false → unlimited. So self-host and local dev are never
+  limited; only the demo host opts in.
+- **BYOK bypasses entirely.** A request carrying any user key is never checked
+  or counted — it runs on the user's quota (the route's `byok` short-circuit).
+- **Fail closed (demo) / open (BYOK).** If Upstash is configured but unreachable,
+  `checkDemoLimit` throws and the route blocks the demo request (protect the
+  wallet); BYOK never reaches the check. Verified by pointing the env at an
+  unreachable URL → demo `429`, BYOK `200`.
+- **Per-user checked before global** so a user-capped request doesn't also burn
+  global budget. Counters `INCR` + `EXPIRE` to midnight UTC in one pipeline call.
+- **Identity** is the client-generated `clientId` (`getClientId`, localStorage),
+  falling back to IP. Best-effort by design — clearing storage resets it; the
+  global kill-switch is the guarantee, not the per-user cap.
+
+**Why not accounts / why this is enough:** accounts would kill the
+"no account needed" pillar. The realistic threat to a free demo is a script
+draining Tavily credits; the global cap bounds that absolutely, and the
+per-identity cap nudges honest heavy users toward BYOK. `session-end` is left
+unlimited (one cheap call per session, no Tavily, not an abuse vector).
+
+**Why fetch, not `@upstash/redis`:** the REST surface we need is one pipeline
+call; a plain `fetch` (mirroring `lib/tavily.ts`) keeps the dependency count and
+the cold-start footprint down.

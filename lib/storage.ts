@@ -3,6 +3,20 @@ import type { UserKeys } from "./types";
 // localStorage keys (client-only persistence outside IndexedDB).
 export const LAST_PLAYTHROUGH_KEY = "lk:lastPlaythroughId";
 export const USER_KEYS_KEY = "lk:userKeys";
+export const CLIENT_ID_KEY = "lk:clientId";
+
+// Stable per-browser id, generated on first use. Sent with chat requests so the
+// demo's per-identity soft cap has something to key on (best-effort — cleared
+// storage resets it; that's fine, the global kill-switch is the hard guard).
+export function getClientId(): string {
+  if (typeof window === "undefined") return "";
+  let id = localStorage.getItem(CLIENT_ID_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(CLIENT_ID_KEY, id);
+  }
+  return id;
+}
 
 // BYOK keys live in localStorage (not IndexedDB): they're config/secrets, not
 // playthrough data, and need a synchronous read when building a request. They
