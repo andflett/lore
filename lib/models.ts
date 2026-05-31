@@ -4,6 +4,9 @@ export interface ModelOption {
   // Compact name shown in the inline switcher inside the chat input.
   short: string;
   provider: string;
+  // "demo" runs on our shared server keys (no setup, capped). "byok" needs the
+  // user's own Anthropic key — gated in the picker until a key is present.
+  tier: "demo" | "byok";
   notes?: string;
 }
 
@@ -11,22 +14,17 @@ export const MODELS: ModelOption[] = [
   {
     id: "groq/openai/gpt-oss-120b",
     label: "GPT-OSS 120B",
-    short: "GPT-OSS",
-    provider: "Groq (free)",
-    notes: "Free · default · structured output",
-  },
-  {
-    id: "groq/llama-3.3-70b-versatile",
-    label: "Llama 3.3 70B",
-    short: "Llama 3.3",
-    provider: "Groq (free)",
-    notes: "Free · fast · plain chat only",
+    short: "Demo",
+    provider: "Demo",
+    tier: "demo",
+    notes: "Free · no key needed · capped",
   },
   {
     id: "anthropic/claude-haiku-4-5",
     label: "Claude Haiku 4.5",
     short: "Haiku 4.5",
     provider: "Anthropic",
+    tier: "byok",
     notes: "Fast · best search & citations",
   },
   {
@@ -34,11 +32,25 @@ export const MODELS: ModelOption[] = [
     label: "Claude Sonnet 4.5",
     short: "Sonnet 4.5",
     provider: "Anthropic",
+    tier: "byok",
     notes: "Highest quality",
   },
 ];
 
-export const DEFAULT_MODEL = MODELS[0].id;
+// The shared free model. Also the server-side fallback: an Anthropic id with no
+// key resolves to this so chat keeps working (see lib/provider.ts).
+export const DEMO_MODEL = "groq/openai/gpt-oss-120b";
+export const DEFAULT_MODEL = DEMO_MODEL;
+
+// Once the user brings an Anthropic key, new playthroughs default to Haiku —
+// it's the recommended everyday model (fast, great citations).
+export const DEFAULT_BYOK_MODEL = "anthropic/claude-haiku-4-5";
+
+// The model a fresh playthrough should start on, given whether the user has
+// configured their own Anthropic key. With a key → Haiku; without → the demo.
+export function preferredDefaultModel(hasAnthropicKey: boolean): string {
+  return hasAnthropicKey ? DEFAULT_BYOK_MODEL : DEMO_MODEL;
+}
 
 const MODEL_IDS = new Set(MODELS.map((m) => m.id));
 
