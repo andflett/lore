@@ -1,5 +1,5 @@
 import type { SearchSource } from "@/lib/types";
-import type { QuestionKind } from "@/lib/agent/schemas";
+import { isGameContentKind, type QuestionKind } from "@/lib/agent/schemas";
 import { parseCitations } from "@/lib/parse-citations";
 import { MarkdownAnswer } from "./MarkdownAnswer";
 import { SourcesFooter } from "./SourcesFooter";
@@ -11,18 +11,11 @@ interface Props {
   kind?: QuestionKind;
 }
 
-// Conversational kinds where the absence of a wiki source is expected and
-// uninteresting. All other kinds are game-content — if those answer without a
-// source, the UI surfaces a small badge so the player knows.
-const CONVERSATIONAL_KINDS: ReadonlySet<QuestionKind> = new Set([
-  "meta",
-  "other",
-]);
-
 export function AssistantMessage({ content, sources = [], kind }: Props) {
   const { text, citedIndices } = parseCitations(content);
+  // Game-content kinds carry facts; flag when one answered without a source.
   const showUnsourcedNote =
-    sources.length === 0 && kind != null && !CONVERSATIONAL_KINDS.has(kind);
+    sources.length === 0 && kind != null && isGameContentKind(kind);
   return (
     <div className="flex flex-row items-start">
       <div className="max-w-[95%] sm:max-w-[92%]">

@@ -1,5 +1,15 @@
 import type { QuestionKind } from "./agent/schemas";
 
+// Bring-your-own-key: user-supplied API keys, stored in the browser and sent
+// per-request so they run on their own quota (and unlock Claude). Optional —
+// when absent the server falls back to its own env keys (the free Groq demo).
+// Groq stays server-side (it's the free default); only Anthropic + Tavily are
+// user-overridable.
+export interface UserKeys {
+  anthropic?: string;
+  tavily?: string;
+}
+
 export interface Game {
   id: string;
   name: string;

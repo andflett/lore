@@ -1,5 +1,5 @@
 import { Annotation } from "@langchain/langgraph";
-import type { Game, Playthrough, SearchSource } from "@/lib/types";
+import type { Game, Playthrough, SearchSource, UserKeys } from "@/lib/types";
 import type { QuestionKind, SpoilerRisk } from "./schemas";
 
 // A retrieved web result carries its full content for the generate step,
@@ -16,6 +16,8 @@ export const AgentState = Annotation.Root({
   game: Annotation<Game>({ reducer: (_, n) => n }),
   playthrough: Annotation<Playthrough>({ reducer: (_, n) => n }),
   modelId: Annotation<string>({ reducer: (_, n) => n }),
+  // BYOK keys (Anthropic/Tavily). Empty object means "use server env keys".
+  keys: Annotation<UserKeys>({ reducer: (_, n) => n, default: () => ({}) }),
   priorMessages: Annotation<Turn[]>({
     reducer: (_, n) => n,
     default: () => [],
@@ -25,6 +27,9 @@ export const AgentState = Annotation.Root({
   needsSearch: Annotation<boolean>({ reducer: (_, n) => n, default: () => false }),
   kind: Annotation<QuestionKind>({ reducer: (_, n) => n, default: () => "other" }),
   spoilerRisk: Annotation<SpoilerRisk>({ reducer: (_, n) => n, default: () => "none" }),
+  // The core game noun the question hinges on (e.g. "Prayer skill"). Drives the
+  // definitional/factual follow-up search in the ground loop.
+  subject: Annotation<string | null>({ reducer: (_, n) => n, default: () => null }),
 
   // ── Retrieval (accumulates across loops) ──────────────────────
   results: Annotation<RetrievedResult[]>({
@@ -37,7 +42,16 @@ export const AgentState = Annotation.Root({
     default: () => [],
   }),
   nextQuery: Annotation<string | null>({ reducer: (_, n) => n, default: () => null }),
+  // Whether the *next* search should target wiki/definitional sources (drop
+  // community opinion domains). Set by the ground node when facts are missing.
+  nextQueryIsFactual: Annotation<boolean>({ reducer: (_, n) => n, default: () => false }),
   hasEnoughContext: Annotation<boolean>({
+    reducer: (_, n) => n,
+    default: () => false,
+  }),
+  // Whether the retrieved sources actually contain the hard facts needed to
+  // answer (not just opinion). Read by the answer prompt's grounding contract.
+  hasFactualGrounding: Annotation<boolean>({
     reducer: (_, n) => n,
     default: () => false,
   }),

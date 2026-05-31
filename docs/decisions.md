@@ -311,20 +311,22 @@ shared primitives may use raw elements internally):
 
 ---
 
-## D16 · Rebranded from "Lorekeeper" to "Hearthnote"; IndexedDB name retained
+## D16 · Rebranded "Lorekeeper" → "Hearthnote" → "Wyrdscribe"; IndexedDB name retained
 
-**Decision:** The app's visible brand is **Hearthnote**. Visible strings
-(header wordmark, `<title>`, `package.json` name, all doc front matter)
-were updated in a single sweep. The **IndexedDB database is still named
-`lorekeeper`** (`super("lorekeeper")` in
+**Decision:** The app's visible brand is **Wyrdscribe** (live at
+`wyrdscribe.app`). Visible strings (header wordmark, `<title>`,
+`package.json` name, doc front matter) follow the brand. The **IndexedDB
+database is still named `lorekeeper`** (`super("lorekeeper")` in
 [`lib/db.ts`](../lib/db.ts)), and the historical planning artifacts under
 `.claude/planning/` keep their original `lorekeeper-*` filenames.
 
-**Why brand-only:** "Lorekeeper" was a working name and turned out to be
-heavily used — a Final Fantasy ability, several WoW guild add-ons, multiple
-itch.io games. See [`docs/naming.md`](./naming.md) for the shortlist
-review; **Hearthnote** won (hearth = home/safe-room, note = the records
-the player keeps).
+**Why it changed twice:** "Lorekeeper" was a working name and turned out to
+be heavily used — a Final Fantasy ability, several WoW guild add-ons,
+multiple itch.io games. The shortlist in [`docs/naming.md`](./naming.md)
+first landed on **Hearthnote**, but the brand ultimately shipped as
+**Wyrdscribe** (wyrd = fate/destiny + scribe = the keeper of records) — a
+sharper fit for the dark-fantasy tone. `naming.md` is kept as the historical
+shortlist; Wyrdscribe post-dates it.
 
 **Why keep the IndexedDB name:** renaming the db would orphan existing
 local data (every playthrough + session + memory block on every user's
@@ -336,8 +338,211 @@ never see the db name. Trade reads cleanly in favour of leaving it alone.
 artifacts — the original spec and prototype. Renaming would break the
 in-repo links and lose provenance.
 
-**How to apply going forward:** any new user-facing text says "Hearthnote."
-Old "Lorekeeper" mentions only legitimately survive in (a) the IndexedDB
-name string, (b) planning-folder filenames, (c)
-[`docs/naming.md`](./naming.md) and this entry as records of the rename.
-A grep for `Lorekeeper` outside those locations is a regression.
+**How to apply going forward:** any new user-facing text says "Wyrdscribe."
+Old "Lorekeeper"/"Hearthnote" mentions only legitimately survive in (a) the
+IndexedDB name string (`lorekeeper`), (b) planning-folder filenames, (c)
+[`docs/naming.md`](./naming.md), (d) the rebrand-chain comment in
+[`lib/db.ts`](../lib/db.ts), and (e) this entry — all as records of the
+renames. A grep for `Lorekeeper` or `Hearthnote` outside those locations is
+a regression.
+
+---
+
+## D17 · Fact-aware grounding loop + "refuse the unverified fact" voice
+
+**Decision:** The agent now distinguishes *opinion* from *hard facts* and
+refuses to assert the latter without a source.
+
+- The old `assess` node ("is this enough?") became **`ground`**: a
+  `generateObject` (`groundingSchema`) call that judges whether the retrieved
+  sources actually establish the hard **facts** (what the subject does, its
+  numbers/effects, where it is) — not just opinion. If they don't, it returns a
+  definitional `nextQuery` with `nextQueryIsFactual: true` and the graph loops
+  one more time.
+- A **factual search pass** drops community/opinion domains
+  (`resolveFactualDomains`, currently filters out `reddit.com`) and shapes the
+  query toward "what it does", so the definitional wiki page wins.
+- **`decide` force-searches every game-content kind** (`isGameContentKind` —
+  everything except `meta`/`other`). A game question never answers "from
+  memory."
+- `MAX_SEARCHES` 2 → **3** so an opinion pass, a cross-ref pass, and a factual
+  pass can coexist.
+- The generate prompt ([`build-answer-prompt.ts`](../lib/build-answer-prompt.ts))
+  gained a **grounding contract**: state mechanics/numbers/locations as fact
+  *only* when a source backs them with `[n]`; if the sources are opinion-only,
+  say plainly they don't confirm it and point to the wiki — still answering the
+  groundable parts. The no-results branch for game-content kinds now *refuses
+  the unverifiable specific* instead of the old "answer from training knowledge,
+  no disclaimers" (the line that directly produced the bug below). Conversational
+  kinds (meta/other) keep answering from general knowledge.
+
+**Why:** A player asked "should I use the Prayer skill for my build?" and
+gpt-oss confidently described Prayer as something it isn't, sourced from
+training data. Root cause was twofold: (1) the build-shaped query retrieved 5
+Reddit opinion posts and never the wiki page stating what Prayer does, and (2)
+the prompt told the model to fill gaps from memory with no hedging. The model
+backfilled the factual gap with a wrong "fact" and cited Reddit for tone — and
+because `sources.length > 0`, even the "unsourced" badge stayed hidden. The
+grounding loop fetches the missing facts; the contract stops the model asserting
+what no source confirms.
+
+**Voice choice (Andrew):** *refuse the factual part* — give grounded + opinion
+answers, but decline to state unverified mechanics rather than hedge-and-assert.
+
+**Tradeoff:** Up to one extra Tavily call + one extra `generateObject` on
+build/boss/quest/lore questions (objective item/mechanic lookups still
+short-circuit after one good wiki hit). Worth it — a wrong "fact" stated
+confidently is the failure this tool most needs to avoid.
+
+**Shared partition:** `CONVERSATIONAL_KINDS` / `isGameContentKind` now live in
+[`schemas.ts`](../lib/agent/schemas.ts) and are imported by both the agent and
+`AssistantMessage` (was a local copy in the component) so the "is this
+game-content?" judgement can't drift between the prompt and the UI badge.
+
+---
+
+## D18 · Re-evaluated model-side search — still keep retrieval in code
+
+**Decision:** Revisited the D2/D4 "the model never emits tool calls" rule while
+fixing D17, since the obvious alternative ("just let the model search for the
+facts itself") was on the table. Kept retrieval in code; gave the model agency
+over *what we fetch next* through `generateObject` (the `ground` node) instead.
+
+**Why, beyond the original Groq tool-call breakage:**
+
+1. **Provider bifurcation.** The D2/D4 failures are provider-side 400s on the
+   *default* free models (gpt-oss, llama). Native tool-search would only work on
+   Anthropic — splitting behavior by provider for the exact feature meant to
+   make answers *more* reliable.
+2. **Citation stability.** Our `[n]` indices are assigned in code and re-ranked
+   by the per-game domain priority list ([D13](#d13--source-allowlist-lives-on-game-not-playthrough),
+   [`tavily.ts`](../lib/tavily.ts)). Model-driven tool calls would retrieve in an
+   order we don't control, breaking stable, re-rankable citations.
+3. **Same benefit without the risk.** The point was "the hard facts get
+   fetched." The `ground` node achieves that deterministically via the one thing
+   Groq is reliable at — structured JSON — with no tool-call surface.
+
+**Empirical re-check (pending):** [`scripts/groq-toolcall-repro.ts`](../scripts/groq-toolcall-repro.ts)
+probes whether current gpt-oss-120b still 400s when given a tool / a "search
+tool" mention. It could **not** be run in the web sandbox (network policy blocks
+`api.groq.com`; no `GROQ_API_KEY`). Run it locally to confirm; the decision
+stands regardless on arguments 1–3.
+
+---
+
+## D19 · Anthropic prompt caching on the generate step only
+
+**Decision:** Attach an ephemeral `cacheControl` breakpoint to the **system
+prompt** and the **end of the conversation-history prefix** in `streamAnswer`
+([`lib/agent/generate.ts`](../lib/agent/generate.ts)), gated to the Anthropic
+provider via `isAnthropic()` ([`lib/provider.ts`](../lib/provider.ts)). The
+current user turn — which carries the freshly-retrieved search results — is left
+**uncached**.
+
+**Why:** Token cost is dominated by the `generate` step's input (system + memory
++ history + injected results). The system prompt and history prefix repeat every
+turn within a session, so caching them turns most of that input into ~10%-priced
+cache reads. The search results differ every turn, so caching them would only
+pay the write premium for no reuse — they stay out of the cached prefix (placed
+last, after the breakpoint).
+
+**Why generate-only:**
+- The `decide`/`ground` `generateObject` prompts are small (~700–1000 tokens) —
+  below Anthropic's **2048-token minimum cacheable prefix for Haiku** (1024 for
+  Sonnet/Opus). They'd never cache, so we don't add the complexity.
+- Even the generate prefix only clears the Haiku floor once a session's history
+  grows, so caching is a **no-op on short chats** and an honest win mainly in
+  longer sessions. Acceptable — it costs nothing when it doesn't apply.
+
+**Why gated:** Groq has no cache-control concept; attaching `cacheControl` to a
+Groq message is at best ignored and at worst an error. `isAnthropic()` also
+returns false when the Anthropic key is missing (the call would fall back to the
+default Groq model — see [D1](#d1--direct-provider-sdks-not-the-vercel-ai-gateway)),
+so we never tag a request that won't actually hit Anthropic.
+
+**Mechanism note:** Caching uses the AI SDK's
+`providerOptions.anthropic.cacheControl: { type: 'ephemeral' }` on `ModelMessage`s
+(not the raw Anthropic SDK's `cache_control` blocks). This required moving the
+system prompt from the top-level `system` param into a `role: 'system'` message
+so a breakpoint can sit on it. Default TTL (5m) — turns land within minutes.
+
+**Tradeoff:** Default model is still Groq, so this is dormant until a playthrough
+runs on Haiku/Sonnet. Shipped now as cheap, gated groundwork for the Claude
+default discussed alongside this change.
+
+---
+
+## D20 · BYOK: per-request user keys (Anthropic + Tavily), Groq stays server-side
+
+**Decision:** Users can supply their own **Anthropic** and **Tavily** keys in a
+global Settings modal ([`components/settings/SettingsModal.tsx`](../components/settings/SettingsModal.tsx),
+opened from a header lantern). Keys are stored in `localStorage`
+(`lib/storage.ts`, `getUserKeys`/`setUserKeys`), merged into the request body as
+`userKeys` by [`useAgent`](../hooks/useAgent.ts) and `SessionEndReview`, and used
+**transiently** server-side — never logged or persisted. **Groq is not
+user-overridable** (it's the free default tier); only Anthropic + Tavily are.
+
+**Why this shape:**
+- **Server boundary already exists**, so keys ride the existing request to
+  `/api/chat` and `/api/session-end`; no new infra. The routes validate
+  `userKeys` (bounded strings) alongside the Phase-1 hardening.
+- **Per-request, not singletons.** `lib/provider.ts` was refactored from
+  module-load `createAnthropic`/`createGroq` singletons to a factory:
+  `resolveModel(id, keys?)` builds the Anthropic client per-call with
+  `keys.anthropic ?? process.env.ANTHROPIC_API_KEY`. Groq stays a singleton.
+  `keys` is threaded through `AgentState` → `decideNode`/`searchNode`/
+  `groundNode`/`streamAnswer`; `searchTavily(query, opts, userKey?)` takes the
+  Tavily override. `isAnthropic(id, keys?)` now also returns true for a BYOK key,
+  so D19 caching applies to BYOK Anthropic calls too.
+- **localStorage, not IndexedDB:** keys are config/secrets (not playthrough
+  data) and need a synchronous read when building a request. No fake client-side
+  encryption — a decrypt key stored next to the ciphertext is theatre; instead
+  the UI is explicit that keys live in the browser, and the privacy-conscious
+  self-host.
+
+**Trust model:** a BYOK key transits the owner's server (used only to make that
+request, never stored). Fully client-side direct-to-Anthropic is a future
+north-star but Tavily lacks browser CORS, so it can't be fully client-side today.
+
+**Funnel role:** BYOK is the *upgrade/unlimited* path — with keys you run on your
+own quota and unlock Claude; without them you get the free shared demo (Groq +
+the server's Tavily credits). BYOK requests will also bypass the Phase-3 demo
+caps. Owner-unlimited needs no auth: Andrew just uses BYOK with his own keys.
+
+---
+
+## D21 · Demo usage limiting via Upstash (global kill-switch + per-identity cap)
+
+**Decision:** `/api/chat` gates pure-demo requests through
+[`lib/usage.ts`](../lib/usage.ts) (`checkDemoLimit`), backed by Upstash Redis
+over plain REST `fetch` (no new dependency). Two per-UTC-day counters: a
+per-identity soft cap (`DEMO_DAILY_USER_LIMIT`, default 15) and a **global
+kill-switch** (`DEMO_DAILY_GLOBAL_LIMIT`, default 300) — the hard wallet guard.
+On exceed, the route returns `429 { error: "limit", reason }`; the client shows
+[`UpgradeModal`](../components/settings/UpgradeModal.tsx).
+
+**Key behaviours:**
+- **Disabled unless configured.** No `UPSTASH_REDIS_REST_URL`/`_TOKEN` →
+  `limitingEnabled` is false → unlimited. So self-host and local dev are never
+  limited; only the demo host opts in.
+- **BYOK bypasses entirely.** A request carrying any user key is never checked
+  or counted — it runs on the user's quota (the route's `byok` short-circuit).
+- **Fail closed (demo) / open (BYOK).** If Upstash is configured but unreachable,
+  `checkDemoLimit` throws and the route blocks the demo request (protect the
+  wallet); BYOK never reaches the check. Verified by pointing the env at an
+  unreachable URL → demo `429`, BYOK `200`.
+- **Per-user checked before global** so a user-capped request doesn't also burn
+  global budget. Counters `INCR` + `EXPIRE` to midnight UTC in one pipeline call.
+- **Identity** is the client-generated `clientId` (`getClientId`, localStorage),
+  falling back to IP. Best-effort by design — clearing storage resets it; the
+  global kill-switch is the guarantee, not the per-user cap.
+
+**Why not accounts / why this is enough:** accounts would kill the
+"no account needed" pillar. The realistic threat to a free demo is a script
+draining Tavily credits; the global cap bounds that absolutely, and the
+per-identity cap nudges honest heavy users toward BYOK. `session-end` is left
+unlimited (one cheap call per session, no Tavily, not an abuse vector).
+
+**Why fetch, not `@upstash/redis`:** the REST surface we need is one pipeline
+call; a plain `fetch` (mirroring `lib/tavily.ts`) keeps the dependency count and
+the cold-start footprint down.

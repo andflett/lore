@@ -40,6 +40,16 @@ export const MODELS: ModelOption[] = [
 
 export const DEFAULT_MODEL = MODELS[0].id;
 
+const MODEL_IDS = new Set(MODELS.map((m) => m.id));
+
+// True if `id` is one of the models we actually offer. The chat/session-end
+// routes use this to reject arbitrary client-supplied model strings (the body
+// is public) — an unknown id is coerced to DEFAULT_MODEL rather than passed
+// through to a provider.
+export function isKnownModel(id: string): boolean {
+  return MODEL_IDS.has(id);
+}
+
 export function modelLabel(id: string): string {
   return MODELS.find((m) => m.id === id)?.label ?? id;
 }

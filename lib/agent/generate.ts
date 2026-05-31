@@ -1,7 +1,13 @@
-import { streamText, type StreamTextResult } from "ai";
-import { resolveModel } from "@/lib/provider";
+import { streamText, type ModelMessage, type StreamTextResult } from "ai";
+import { resolveModel, isAnthropic } from "@/lib/provider";
 import { buildAnswerPrompt } from "@/lib/build-answer-prompt";
 import type { AgentStateType } from "./state";
+
+// One ephemeral cache breakpoint. Default TTL (5m) suits chat — turns land
+// within minutes — and avoids the higher write premium of the 1h tier.
+const CACHE: { anthropic: { cacheControl: { type: "ephemeral" } } } = {
+  anthropic: { cacheControl: { type: "ephemeral" } },
+};
 
 // Rough char→token estimate. Avoids pulling in a real tokenizer dep just for
 // observability — the ratio is within ±20% for English prose, which is fine
@@ -26,6 +32,27 @@ export function streamAnswer(
     hasResults: state.results.length > 0,
     kind: state.kind,
     spoilerRisk: state.spoilerRisk,
+    hasFactualGrounding: state.hasFactualGrounding,
+  });
+
+  // Prompt caching (Anthropic only — gated so a Groq call never gets
+  // cacheControl). Breakpoints sit at the two most stable boundaries: the end
+  // of the system prompt (static across the playthrough) and the end of the
+  // conversation-history prefix (stable within a turn). The current user
+  // message carries the fresh search results, so it stays UNCACHED — caching
+  // per-turn content would only pay the write premium for no reuse.
+  // Note: Anthropic needs a ≥2048-token prefix (Haiku) to cache at all, so this
+  // is a no-op on short chats; it pays off as a session's history grows. The
+  // small decide/ground generateObject prompts are below that floor — not cached.
+  const cached = isAnthropic(state.modelId, state.keys);
+  const systemMessage: ModelMessage = {
+    role: "system",
+    content: system,
+    ...(cached ? { providerOptions: CACHE } : {}),
+  };
+  const history: ModelMessage[] = state.priorMessages.map((m, i) => {
+    const isLastPrior = i === state.priorMessages.length - 1;
+    return cached && isLastPrior ? { ...m, providerOptions: CACHE } : m;
   });
 
   // Observability: track payload growth across turns so we know when to
@@ -41,10 +68,10 @@ export function streamAnswer(
   );
 
   return streamText({
-    model: resolveModel(state.modelId),
-    system,
+    model: resolveModel(state.modelId, state.keys),
     messages: [
-      ...state.priorMessages,
+      systemMessage,
+      ...history,
       { role: "user", content: userContent },
     ],
     // gpt-oss is a reasoning model. Per Groq provider docs, set reasoningFormat

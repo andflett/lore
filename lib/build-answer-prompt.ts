@@ -1,10 +1,18 @@
 import type { Game, Playthrough } from "./types";
-import type { QuestionKind, SpoilerRisk } from "./agent/schemas";
+import {
+  isGameContentKind,
+  type QuestionKind,
+  type SpoilerRisk,
+} from "./agent/schemas";
 
 interface Options {
   hasResults: boolean;
   kind: QuestionKind;
   spoilerRisk: SpoilerRisk;
+  // Whether the ground node judged the retrieved sources to actually hold the
+  // hard facts (vs. being opinion-heavy). When false, the prompt leans harder
+  // on the "don't assert unverified mechanics" rule.
+  hasFactualGrounding: boolean;
 }
 
 // Tone hint per question kind — keeps answers shaped to the question.
@@ -36,7 +44,8 @@ export function buildAnswerPrompt(
   playthrough: Playthrough,
   options: Options,
 ): string {
-  const { hasResults, kind, spoilerRisk } = options;
+  const { hasResults, kind, spoilerRisk, hasFactualGrounding } = options;
+  const gameContent = isGameContentKind(kind);
   const lines: string[] = [
     "You are a knowledgeable gaming companion helping with a specific playthrough.",
     "",
@@ -77,14 +86,34 @@ export function buildAnswerPrompt(
       "- Cite the most specific source available. If multiple sources confirm the same claim, cite all of them: [1][2].",
       "- Cite no more than 3 sources per claim, and aim for 4 citations total across the whole answer. If you have more sources, pick the most specific.",
       "- Do not invent citation numbers. Only use numbers that appear in the provided results.",
+      "",
+      "GROUNDING (what you may state as fact):",
+      "- State game mechanics, effects, numbers, locations and other hard facts ONLY when a provided source supports them, followed by its [n].",
+      "- If the sources cover opinions or builds but do NOT confirm a specific factual claim, do not assert it from prior knowledge. Say plainly that the sources don't confirm it and suggest checking the game's wiki. Still answer the parts you CAN ground.",
+      "- Subjective advice (build trade-offs, recommendations, what's 'fun') is fine — frame it as judgement and keep it clearly separate from unverified facts.",
     );
-  } else {
-    // No search ran. Answer from training knowledge without any meta-commentary
-    // — the UI shows a small "unsourced" badge separately when the question
-    // was game-content. Don't apologise in prose.
+    if (!hasFactualGrounding) {
+      lines.push(
+        "- Note: the retrieved sources are mostly community opinion and may NOT establish the underlying mechanics. Be especially careful — do not state how something works as fact unless a source explicitly says so.",
+      );
+    }
+  } else if (gameContent) {
+    // No sources, but a game-content question — the riskiest case for training
+    // hallucination (this is the Prayer-skill failure). Refuse the unverifiable
+    // factual part rather than assert it confidently.
     lines.push(
       "",
-      "- Answer from training knowledge. Do not add disclaimers about your sources or training data — the UI handles that separately.",
+      "NO SOURCES — answer carefully:",
+      "- Do NOT state specific mechanics, numbers, item effects, locations or other hard facts you cannot verify from a source.",
+      "- If the question hinges on such a fact, say plainly that you don't have a source to confirm it and recommend checking the game's wiki — do not guess from memory.",
+      "- Broad, widely-known guidance and general approach are fine; just don't dress up an uncertain specific as fact.",
+    );
+  } else {
+    // Conversational (meta/other): answering from general knowledge is correct
+    // here — it's about the app or small-talk, not game facts. No hedging.
+    lines.push(
+      "",
+      "- Answer from general knowledge. Do not add disclaimers about your sources or training data — the UI handles that separately.",
     );
   }
 

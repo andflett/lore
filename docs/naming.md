@@ -1,5 +1,10 @@
 # Naming candidates
 
+> **Outcome (historical note):** the brand ultimately shipped as **Wyrdscribe**
+> (`wyrdscribe.app`), which post-dates this shortlist — it isn't listed below.
+> The doc first leaned toward **Hearthnote** (see "My picks"); that was a brief
+> interim name. This page is kept for provenance, not as the current answer.
+
 "Lorekeeper" is widely used (a Final Fantasy ability, several WoW guild
 add-ons, multiple itch.io games, a Roblox simulator, etc.) — fine as a
 working name during development, but worth rebranding before any public

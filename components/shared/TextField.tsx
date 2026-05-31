@@ -11,7 +11,7 @@ interface Props {
   placeholder?: string;
   autoFocus?: boolean;
   ariaLabel?: string;
-  type?: "text" | "search";
+  type?: "text" | "search" | "password";
   // Matches Btn sizes so paired field+button rows share a height. Defaults to
   // `lg` (44px) — the field's original natural height — so existing callers
   // are unchanged.

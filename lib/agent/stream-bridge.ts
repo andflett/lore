@@ -2,13 +2,14 @@ import { agentGraph } from "./graph";
 import { streamAnswer } from "./generate";
 import type { AgentStateType, RetrievedResult } from "./state";
 import type { AgentEvent } from "./events";
-import type { Game, Playthrough } from "@/lib/types";
+import type { Game, Playthrough, UserKeys } from "@/lib/types";
 
 interface Input {
   query: string;
   game: Game;
   playthrough: Playthrough;
   modelId: string;
+  keys: UserKeys;
   priorMessages: { role: "user" | "assistant"; content: string }[];
 }
 
@@ -27,6 +28,7 @@ export function createAgentStream(input: Input): ReadableStream<Uint8Array> {
           game: input.game,
           playthrough: input.playthrough,
           modelId: input.modelId,
+          keys: input.keys,
           priorMessages: input.priorMessages,
         });
 
@@ -74,6 +76,7 @@ export function createAgentStream(input: Input): ReadableStream<Uint8Array> {
           game: input.game,
           playthrough: input.playthrough,
           modelId: input.modelId,
+          keys: input.keys,
           priorMessages: input.priorMessages,
           results,
         } as AgentStateType;

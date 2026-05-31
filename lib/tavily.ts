@@ -39,6 +39,26 @@ export function resolveEffectiveDomains(game: Game): {
   return { include, exclude };
 }
 
+// Community/opinion domains: great for "what do people run?" but the wrong
+// place to learn what a skill or item factually does. The factual pass drops
+// these so the definitional wiki page wins.
+export const OPINION_DOMAINS = ["reddit.com"];
+
+// Like resolveEffectiveDomains, but for a definitional/factual pass: keep only
+// wiki-class sources by dropping known opinion domains. Falls back to the full
+// include list if filtering would leave nothing (e.g. a game whose only
+// configured source is a forum) — better to search somewhere than nowhere.
+export function resolveFactualDomains(game: Game): {
+  include: string[];
+  exclude: string[];
+} {
+  const { include, exclude } = resolveEffectiveDomains(game);
+  const wikiOnly = include.filter(
+    (d) => !OPINION_DOMAINS.some((o) => d.endsWith(o)),
+  );
+  return { include: wikiOnly.length > 0 ? wikiOnly : include, exclude };
+}
+
 export interface TavilyOptions {
   // Ordered list of domains the search is allowed to return. Order also
   // serves as priority for re-ranking results (earlier = higher).
@@ -57,8 +77,11 @@ export interface TavilyOptions {
 export async function searchTavily(
   query: string,
   opts: TavilyOptions = {},
+  userKey?: string,
 ): Promise<TavilyResult[]> {
-  const apiKey = process.env.TAVILY_API_KEY;
+  // BYOK Tavily key (if provided) runs the search on the user's own quota;
+  // otherwise fall back to the server env key (the free demo's credits).
+  const apiKey = userKey || process.env.TAVILY_API_KEY;
   if (!apiKey) throw new Error("TAVILY_API_KEY is not set");
 
   const include = opts.includeDomains ?? DEFAULT_INCLUDE_DOMAINS;
