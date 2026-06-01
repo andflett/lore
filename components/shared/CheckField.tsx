@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { GameIcon } from "./GameIcon";
+import { CheckIcon } from "@radix-ui/react-icons";
 
 interface Props {
   checked: boolean;
@@ -34,7 +34,7 @@ export function CheckField({ checked, onChange, children, disabled }: Props) {
         }`}
         style={{ boxShadow: "inset 0 1px 2px rgba(0,0,0,0.4)" }}
       >
-        {checked && <GameIcon name="check-mark" size={10} className="text-gold" />}
+        {checked && <CheckIcon className="h-3.5 w-3.5 text-gold" />}
       </span>
       <span>{children}</span>
     </label>

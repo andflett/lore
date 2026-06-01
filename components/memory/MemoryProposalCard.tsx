@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
+import { CheckIcon } from "@radix-ui/react-icons";
 import type { ProposedMemoryUpdate } from "@/lib/types";
 import { Btn } from "@/components/shared/Btn";
 import { GameIcon } from "@/components/shared/GameIcon";
@@ -48,7 +49,7 @@ export function MemoryProposalCard({ proposal, onAccept, onDismiss }: Props) {
           size="sm"
           onClick={() => onAccept({ ...proposal, content: content.trim() })}
         >
-          <GameIcon name="check-mark" size={12} /> Save
+          <CheckIcon className="h-3.5 w-3.5" /> Save
         </Btn>
         <Btn variant="dim" size="sm" onClick={onDismiss}>
           Dismiss

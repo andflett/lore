@@ -6,6 +6,7 @@ import {
   TrailingActions,
   SwipeAction,
 } from "react-swipeable-list";
+import { TrashIcon } from "@radix-ui/react-icons";
 import type { MemoryBlock } from "@/lib/types";
 import { GameIcon } from "@/components/shared/GameIcon";
 import { TextAreaField } from "@/components/shared/TextAreaField";
@@ -43,22 +44,29 @@ export function MemoryBlockRow({ block, onEdit, onRemove }: Props) {
     setEditing(false);
   };
 
+  // Each action takes a firm fixed width (overriding the library's flex:1 on
+  // its content) so the revealed tray has a stable intrinsic size. The IOS
+  // type latches the tray open only when you drag past that measured width and
+  // animates back to it on release — without a stable width the threshold is
+  // erratic (the tray "never stays open") and the icons squish to nothing on a
+  // partial swipe.
+  const actionStyle = { flex: "0 0 72px", letterSpacing: "0.12em" };
   const trailingActions = (
     <TrailingActions>
       <SwipeAction onClick={startEdit}>
         <span
-          className="flex h-full w-full items-center justify-center gap-1.5 bg-stone-s2 px-3 font-ui text-[9px] uppercase text-gold-text"
-          style={{ letterSpacing: "0.12em" }}
+          className="flex h-full items-center justify-center gap-1.5 bg-stone-s2 font-ui text-[9px] uppercase text-gold-text"
+          style={actionStyle}
         >
           <GameIcon name="quill-ink" size={14} /> Edit
         </span>
       </SwipeAction>
       <SwipeAction destructive onClick={onRemove}>
         <span
-          className="flex h-full w-full items-center justify-center gap-1.5 bg-blood-0 px-3 font-ui text-[9px] uppercase text-blood-text"
-          style={{ letterSpacing: "0.12em" }}
+          className="flex h-full items-center justify-center gap-1.5 bg-blood-0 font-ui text-[9px] uppercase text-blood-text"
+          style={actionStyle}
         >
-          <GameIcon name="cancel" size={14} /> Delete
+          <TrashIcon className="h-3.5 w-3.5" /> Delete
         </span>
       </SwipeAction>
     </TrailingActions>
@@ -91,7 +99,7 @@ export function MemoryBlockRow({ block, onEdit, onRemove }: Props) {
           <button
             type="button"
             onClick={startEdit}
-            className="flex-1 text-left text-[14px] leading-snug text-text-t1 hover:text-text-t3"
+            className="flex-1 cursor-pointer text-left text-[14px] leading-snug text-text-t1 hover:text-text-t3"
           >
             {block.content}
           </button>
@@ -100,9 +108,9 @@ export function MemoryBlockRow({ block, onEdit, onRemove }: Props) {
           type="button"
           onClick={onRemove}
           aria-label="Remove memory"
-          className="mt-0.5 hidden shrink-0 text-gold-b2 opacity-0 transition-opacity hover:text-blood group-hover:opacity-100 md:block"
+          className="mt-0.5 hidden shrink-0 cursor-pointer text-gold-b2 opacity-0 transition-opacity hover:text-blood group-hover:opacity-100 md:block"
         >
-          <GameIcon name="cancel" size={12} />
+          <TrashIcon className="h-3 w-3" />
         </button>
       </div>
     </SwipeableListItem>

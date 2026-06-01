@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { Cross2Icon } from "@radix-ui/react-icons";
 import { NOISE_TEX } from "@/lib/surfaces";
 import { PanelTitle } from "./PanelTitle";
 import { IconButton } from "./IconButton";
@@ -30,7 +31,7 @@ export function Drawer({ open, onClose, title, children }: Props) {
             onClick={onClose}
           />
           <motion.div
-            className="fixed inset-y-0 right-0 z-50 flex w-[min(420px,100vw)] flex-col border-l-2 border-gold-b2"
+            className="fixed inset-y-0 right-0 z-50 flex w-[min(420px,100vw)] flex-col border-l-1 border-gold-b2"
             style={{
               background: `${NOISE_TEX} repeat, linear-gradient(180deg, var(--color-stone-s1) 0%, var(--color-stone-s0) 100%)`,
               backgroundSize: "256px 256px, 100% 100%",
@@ -44,7 +45,7 @@ export function Drawer({ open, onClose, title, children }: Props) {
           >
             <PanelTitle
               right={
-                <IconButton icon="close" label="Close" size="sm" onClick={onClose} />
+                <IconButton radixIcon={Cross2Icon} label="Close" size="sm" onClick={onClose} />
               }
             >
               {title}

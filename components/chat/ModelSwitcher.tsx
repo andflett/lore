@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { MODELS, modelShort, preferredDefaultModel } from "@/lib/models";
 import { GameIcon } from "@/components/shared/GameIcon";
 import { Btn } from "@/components/shared/Btn";
@@ -62,13 +63,13 @@ export function ModelSwitcher({ value, onChange }: Props) {
       >
         <GameIcon name="crystal-ball" size={11} className="text-gold-text" />
         <span>{modelShort(value)}</span>
-        <span className="text-[8px] text-text-dim">▾</span>
+        <ChevronDownIcon className="h-3 w-3 text-text-dim" />
       </button>
 
       {open && (
         <div
           role="listbox"
-          className="absolute bottom-full left-0 z-20 mb-2 w-64 border-2 border-gold py-1.5"
+          className="absolute bottom-full left-0 z-20 mb-2 w-64 border border-gold-b3 py-1.5"
           style={{
             ...stoneSurface("deep"),
             boxShadow:
@@ -145,11 +146,7 @@ export function ModelSwitcher({ value, onChange }: Props) {
                     >
                       <span className="mt-[3px] flex h-3 w-3 flex-shrink-0 items-center justify-center">
                         {selected && (
-                          <GameIcon
-                            name="check-mark"
-                            size={11}
-                            className="text-gold-text"
-                          />
+                          <CheckIcon className="h-3 w-3 text-gold-text" />
                         )}
                       </span>
                       <span className="flex-1">

@@ -29,27 +29,26 @@ export function SessionList({ playthroughId, sessions, activeSessionId }: Props)
   if (visible.length === 0) return null;
 
   return (
-    <ul className="ml-[18px] border-l border-gold-b1 py-0.5 pl-1">
+    <ul className="mb-1 ml-3 border-l border-gold-b1 pl-1">
       {visible.map((s) => {
         const active = s.id === activeSessionId;
-        const live = !s.endedAt && isToday(s.startedAt);
         return (
           <li key={s.id}>
             <Link
               href={`/playthrough/${playthroughId}/session/${s.id}`}
-              className={`flex items-center gap-2 px-2 py-1 text-[13px] transition-colors ${
+              className={`relative flex items-center gap-2 px-2 py-1 text-[13px] transition-colors ${
                 active
-                  ? "bg-gold-b0 text-gold-text"
-                  : "text-text-t0 hover:bg-stone-s2 hover:text-text-t2"
+                  ? "text-gold-text"
+                  : "text-text-t0 hover:text-text-t2"
               }`}
             >
-              <span className="truncate">{sessionLabel(s)}</span>
-              {live && (
+              {active && (
                 <span
                   aria-label="Current session"
-                  className="ml-auto h-1.5 w-1.5 shrink-0 bg-gold"
+                  className="absolute -left-1 top-0 h-full w-[2px] bg-gold-b3"
                 />
               )}
+              <span className="truncate">{sessionLabel(s)}</span>
             </Link>
           </li>
         );

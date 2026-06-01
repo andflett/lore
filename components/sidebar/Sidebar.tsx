@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Cross2Icon } from "@radix-ui/react-icons";
 import { useLiveQuery } from "dexie-react-hooks";
 import { listGames, listPlaythroughs } from "@/lib/db";
 import { GameIcon } from "@/components/shared/GameIcon";
@@ -11,18 +13,17 @@ import { PlaythroughItem } from "./PlaythroughItem";
 
 interface Props {
   activePlaythroughId?: string;
-  activeSessionId?: string;
   onNavigate?: () => void;
   // When supplied, shows a close button — used by the mobile drawer.
   onClose?: () => void;
 }
 
-export function Sidebar({
-  activePlaythroughId,
-  activeSessionId,
-  onNavigate,
-  onClose,
-}: Props) {
+export function Sidebar({ activePlaythroughId, onNavigate, onClose }: Props) {
+  // Read the active session straight from the URL rather than taking it as a
+  // prop: this component lives in the persistent layout, so the route params
+  // update on navigation without remounting it.
+  const params = useParams<{ sessionId?: string }>();
+  const activeSessionId = params.sessionId;
   const playthroughs = useLiveQuery(() => listPlaythroughs(), [], []);
   const games = useLiveQuery(() => listGames(), [], []);
   const gameName = (id: string) =>
@@ -31,21 +32,13 @@ export function Sidebar({
   return (
     <nav className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-2 px-4 py-3">
-        <span className="flex items-center gap-2">
-          <GameIcon name="dragon" size={16} className="text-gold" />
-          <span
-            className="font-ui text-[11px] uppercase text-text-t2"
-            style={{ letterSpacing: "0.18em" }}
-          >
-            Playthroughs
-          </span>
-        </span>
+        
         {onClose && (
-          <IconButton icon="close" label="Close" size="sm" onClick={onClose} />
+          <IconButton radixIcon={Cross2Icon} label="Close" size="sm" onClick={onClose} />
         )}
       </div>
 
-      <ul className="flex-1 space-y-1 overflow-y-auto px-3">
+      <ul className="flex-1 overflow-y-auto px-1">
         {playthroughs.length === 0 ? (
           <li className="px-1 py-2 text-[13px] text-text-dim">
             No playthroughs yet.

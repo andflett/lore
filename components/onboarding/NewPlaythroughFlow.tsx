@@ -8,6 +8,7 @@ import { createPlaythrough, ensureGame, listGames, listPlaythroughs } from "@/li
 import { derivePlaythroughName } from "@/lib/playthrough-name";
 import { Panel } from "@/components/shared/Panel";
 import { Btn } from "@/components/shared/Btn";
+import { CheckIcon } from "@radix-ui/react-icons";
 import { GameIcon } from "@/components/shared/GameIcon";
 import { SectionLabel } from "@/components/shared/SectionLabel";
 import { OnboardingStep } from "./OnboardingStep";
@@ -129,7 +130,7 @@ export function NewPlaythroughFlow() {
                 )}
                 {isLast ? (
                   <Btn variant="confirm" size="sm" onClick={finish} disabled={creating || !gameName.trim()}>
-                    <GameIcon name="check-mark" size={12} /> Begin
+                    <CheckIcon className="h-3.5 w-3.5" /> Begin
                   </Btn>
                 ) : (
                   <Btn variant="confirm" size="sm" onClick={next} disabled={!canAdvance}>

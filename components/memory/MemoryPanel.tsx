@@ -10,6 +10,7 @@ import {
   removeMemoryBlock,
   updateMemoryBlock,
 } from "@/lib/db";
+import { CheckIcon } from "@radix-ui/react-icons";
 import { Drawer } from "@/components/shared/Drawer";
 import { Divider } from "@/components/shared/Divider";
 import { Btn } from "@/components/shared/Btn";
@@ -94,7 +95,7 @@ export function MemoryPanel({ open, onClose, playthrough }: Props) {
             />
             <div className="flex gap-2">
               <Btn variant="confirm" size="sm" onClick={submitAdd}>
-                <GameIcon name="check-mark" size={12} /> Add
+                <CheckIcon className="h-3.5 w-3.5" /> Add
               </Btn>
               <Btn variant="dim" size="sm" onClick={() => setAdding(false)}>
                 Cancel

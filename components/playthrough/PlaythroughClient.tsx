@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import {
   createSession,
   getPlaythrough,
@@ -13,7 +14,7 @@ import {
 } from "@/lib/db";
 import { db } from "@/lib/db";
 import { setLastPlaythrough } from "@/lib/storage";
-import { AppShell } from "@/components/shell/AppShell";
+import { HeaderActions } from "@/components/shell/HeaderActions";
 import { Spinner } from "@/components/shared/Spinner";
 import { IconButton } from "@/components/shared/IconButton";
 import { GameIcon } from "@/components/shared/GameIcon";
@@ -106,43 +107,39 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
   const isPast = Boolean(session.endedAt) || !isToday(session.startedAt);
   const sessionIsEmpty = session.messages.length === 0;
 
-  const headerRight = (
+  return (
     <>
-      <IconButton
-        icon="open-book"
-        label="Memory"
-        size="sm"
-        tooltipSide="bottom"
-        tooltipAlign="end"
-        onClick={() => setMemoryOpen(true)}
-      />
-      <IconButton
-        icon="scroll-unfurled"
-        label="Settings"
-        size="sm"
-        tooltipSide="bottom"
-        tooltipAlign="end"
-        onClick={() => setSettingsOpen(true)}
-      />
-      {(!sessionIsEmpty || isPast) && (
+      {/* Header buttons render into the persistent shell's header slot so the
+          surrounding chrome (and the sidebar) stays mounted across sessions. */}
+      <HeaderActions>
         <IconButton
-          icon="sunrise"
-          label="New session"
+          icon="open-book"
+          label="Memory"
           size="sm"
           tooltipSide="bottom"
           tooltipAlign="end"
-          onClick={isPast ? startNewSession : () => setEndOpen(true)}
+          onClick={() => setMemoryOpen(true)}
         />
-      )}
-    </>
-  );
+        <IconButton
+          icon="scroll-unfurled"
+          label="Settings"
+          size="sm"
+          tooltipSide="bottom"
+          tooltipAlign="end"
+          onClick={() => setSettingsOpen(true)}
+        />
+        {(!sessionIsEmpty || isPast) && (
+          <IconButton
+            icon="sunrise"
+            label="New session"
+            size="sm"
+            tooltipSide="bottom"
+            tooltipAlign="end"
+            onClick={isPast ? startNewSession : () => setEndOpen(true)}
+          />
+        )}
+      </HeaderActions>
 
-  return (
-    <AppShell
-      activePlaythroughId={playthrough.id}
-      activeSessionId={session.id}
-      headerRight={headerRight}
-    >
       <SessionView
         key={session.id}
         game={game}
@@ -172,14 +169,14 @@ export function PlaythroughClient({ playthroughId, sessionId }: Props) {
         playthrough={playthrough}
         session={session}
       />
-    </AppShell>
+    </>
   );
 }
 
 function FatalError({ message }: { message: string }) {
   return (
-    <div className="flex h-[100dvh] flex-col items-center justify-center gap-4 px-6 text-center">
-      <GameIcon name="cancel" size={24} className="text-blood-text" />
+    <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+      <ExclamationTriangleIcon className="h-6 w-6 text-blood-text" />
       <p className="text-[14px] text-text-t1">{message}</p>
       <Link
         href="/"

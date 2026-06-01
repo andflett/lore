@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CheckIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { stoneSurface } from "@/lib/surfaces";
 import { Panel } from "@/components/shared/Panel";
 import { PanelTitle } from "@/components/shared/PanelTitle";
@@ -147,13 +148,13 @@ export default function DesignPage() {
         <Section title="Buttons">
           <div className="flex flex-wrap items-center gap-3">
             <Btn variant="confirm">
-              <GameIcon name="check-mark" size={14} /> Accept
+              <CheckIcon className="h-4 w-4" /> Accept
             </Btn>
             <Btn variant="default">Default</Btn>
             <Btn variant="metal">Metal</Btn>
             <Btn variant="dim">Dim</Btn>
             <Btn variant="danger">
-              <GameIcon name="cancel" size={14} /> Discard
+              <Cross2Icon className="h-4 w-4" /> Discard
             </Btn>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-3">

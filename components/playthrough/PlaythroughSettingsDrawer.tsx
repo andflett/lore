@@ -8,7 +8,7 @@ import { Drawer } from "@/components/shared/Drawer";
 import { Divider } from "@/components/shared/Divider";
 import { SectionLabel } from "@/components/shared/SectionLabel";
 import { Btn } from "@/components/shared/Btn";
-import { GameIcon } from "@/components/shared/GameIcon";
+import { TrashIcon } from "@radix-ui/react-icons";
 import { GameNameField } from "./fields/GameNameField";
 import { CharacterFields } from "./fields/CharacterFields";
 import { PlaystyleField } from "./fields/PlaystyleField";
@@ -122,7 +122,7 @@ export function PlaythroughSettingsDrawer({
               Deleting this playthrough removes all its sessions and chat history. This can&apos;t be undone.
             </p>
             <Btn variant="danger" size="sm" onClick={() => setDeleteOpen(true)}>
-              <GameIcon name="cancel" size={12} /> Delete playthrough
+              <TrashIcon className="h-3.5 w-3.5" /> Delete playthrough
             </Btn>
           </section>
         </div>

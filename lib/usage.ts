@@ -9,8 +9,8 @@
 // dev are unlimited. BYOK requests skip this (handled in the route) — they run
 // on the user's own quota.
 
-const URL = process.env.UPSTASH_REDIS_REST_URL;
-const TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const URL = process.env.KV_REST_API_URL;
+const TOKEN = process.env.KV_REST_API_TOKEN;
 
 // True only when the demo host has configured Upstash. Self-host/dev → false →
 // no limiting.

@@ -522,7 +522,7 @@ On exceed, the route returns `429 { error: "limit", reason }`; the client shows
 [`UpgradeModal`](../components/settings/UpgradeModal.tsx).
 
 **Key behaviours:**
-- **Disabled unless configured.** No `UPSTASH_REDIS_REST_URL`/`_TOKEN` →
+- **Disabled unless configured.** No `KV_REST_API_URL`/`_TOKEN` →
   `limitingEnabled` is false → unlimited. So self-host and local dev are never
   limited; only the demo host opts in.
 - **BYOK bypasses entirely.** A request carrying any user key is never checked

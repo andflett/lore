@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDownIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import type { SearchSource } from "@/lib/types";
 import { GameIcon } from "@/components/shared/GameIcon";
 
@@ -40,7 +41,13 @@ export function SourcesFooter({ sources, citedIndices }: Props) {
         >
           {shown.length} {label}
         </span>
-        <span className="text-[9px] text-gold-b3">{open ? "▾" : "▸"}</span>
+        <span className="text-gold-b3">
+          {open ? (
+            <ChevronDownIcon className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronRightIcon className="h-3.5 w-3.5" />
+          )}
+        </span>
       </button>
 
       {open && (

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { Cross2Icon } from "@radix-ui/react-icons";
 import { Panel } from "./Panel";
 import { PanelTitle } from "./PanelTitle";
 import { IconButton } from "./IconButton";
@@ -36,7 +37,7 @@ export function Modal({ open, onClose, title, children }: Props) {
             <Panel>
               <PanelTitle
                 right={
-                  <IconButton icon="close" label="Close" size="sm" onClick={onClose} />
+                  <IconButton radixIcon={Cross2Icon} label="Close" size="sm" onClick={onClose} />
                 }
               >
                 {title}

@@ -103,8 +103,13 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
     <div className="relative flex h-full min-h-0 flex-col" style={stoneSurface("raised")}>
       <div
         ref={scrollRef}
-        className="message-overlay flex flex-col flex-1 min-h-0 overflow-y-auto"
+        className="flex flex-col flex-1 min-h-0 overflow-y-auto"
       >
+        {/* The textured panel lives on this inner wrapper (not the scroll
+            viewport) so it spans the full scroll height — letting it anchor to
+            the bottom and fade in at the top on tall sessions. min-h-full keeps
+            it filling the area when content is short. */}
+        <div className="message-overlay flex shrink-0 flex-col min-h-full">
         {isEmpty ? (
           <div className="flex flex-1 flex-col items-center justify-center px-4 pb-24 pt-6 sm:px-6">
             <div className="flex w-full max-w-2xl flex-col items-center gap-6">
@@ -186,6 +191,7 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
             </AnimatePresence>
           </div>
         )}
+        </div>
       </div>
 
       {!isEmpty && (

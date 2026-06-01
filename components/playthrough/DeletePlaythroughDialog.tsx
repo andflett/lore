@@ -8,7 +8,7 @@ import { deletePlaythrough, listSessions } from "@/lib/db";
 import { clearLastPlaythrough } from "@/lib/storage";
 import { Modal } from "@/components/shared/Modal";
 import { Btn } from "@/components/shared/Btn";
-import { GameIcon } from "@/components/shared/GameIcon";
+import { TrashIcon } from "@radix-ui/react-icons";
 
 interface Props {
   open: boolean;
@@ -53,7 +53,7 @@ export function DeletePlaythroughDialog({ open, onClose, playthrough }: Props) {
             Cancel
           </Btn>
           <Btn variant="danger" size="sm" onClick={confirm} disabled={deleting}>
-            <GameIcon name="cancel" size={12} /> Delete forever
+            <TrashIcon className="h-3.5 w-3.5" /> Delete forever
           </Btn>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { GameIcon } from "./GameIcon";
+import { Cross2Icon } from "@radix-ui/react-icons";
 
 interface Props {
   children: React.ReactNode;
@@ -26,9 +26,9 @@ export function Pill({ children, onRemove, removeLabel, muted }: Props) {
           type="button"
           onClick={onRemove}
           aria-label={removeLabel ?? "Remove"}
-          className="text-gold-b2 hover:text-blood"
+          className="cursor-pointer text-gold-b2 hover:text-blood"
         >
-          <GameIcon name="cancel" size={10} />
+          <Cross2Icon className="h-2.5 w-2.5" />
         </button>
       )}
     </span>

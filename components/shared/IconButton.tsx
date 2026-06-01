@@ -1,12 +1,19 @@
 "use client";
 
+import type { ComponentType } from "react";
 import { Btn } from "./Btn";
 import { GameIcon } from "./GameIcon";
 import { Tooltip } from "./Tooltip";
 import type { IconName } from "@/lib/icon-paths";
 
+// Radix icons are functional UI glyphs (close, etc.); game icons carry the
+// thematic flavour. A button takes exactly one of `icon` (game) or
+// `radixIcon` (a Radix icon component).
+type RadixIcon = ComponentType<{ className?: string }>;
+
 interface Props {
-  icon: IconName;
+  icon?: IconName;
+  radixIcon?: RadixIcon;
   onClick?: () => void;
   variant?: "metal" | "confirm" | "dim" | "danger" | "default";
   size?: "sm" | "md" | "lg";
@@ -25,6 +32,7 @@ const ICON_SIZE: Record<NonNullable<Props["size"]>, number> = {
 
 export function IconButton({
   icon,
+  radixIcon: RadixIconComp,
   onClick,
   variant = "metal",
   size = "md",
@@ -34,6 +42,7 @@ export function IconButton({
   tooltipAlign = "center",
   disabled,
 }: Props) {
+  const px = iconSize ?? ICON_SIZE[size];
   return (
     <Tooltip label={label} side={tooltipSide} align={tooltipAlign}>
       <Btn
@@ -44,7 +53,13 @@ export function IconButton({
         disabled={disabled}
         ariaLabel={label}
       >
-        <GameIcon name={icon} size={iconSize ?? ICON_SIZE[size]} />
+        {RadixIconComp ? (
+          <span style={{ display: "flex", width: px, height: px }}>
+            <RadixIconComp className="h-full w-full" />
+          </span>
+        ) : (
+          icon && <GameIcon name={icon} size={px} />
+        )}
       </Btn>
     </Tooltip>
   );

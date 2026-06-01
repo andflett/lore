@@ -12,7 +12,7 @@ import { SectionLabel } from "@/components/shared/SectionLabel";
 import { Btn } from "@/components/shared/Btn";
 import { Pill } from "@/components/shared/Pill";
 import { SortableListRow } from "@/components/shared/SortableListRow";
-import { GameIcon } from "@/components/shared/GameIcon";
+import { CheckIcon } from "@radix-ui/react-icons";
 
 interface Props {
   game: Game;
@@ -97,9 +97,9 @@ export function SourcesSection({ game }: Props) {
 
   return (
     <div className="space-y-4">
-      <CheckField checked={replaceDefaults} onChange={setReplaceDefaults}>
+      {/* <CheckField checked={replaceDefaults} onChange={setReplaceDefaults}>
         Use my sources only (ignore defaults)
-      </CheckField>
+      </CheckField> */}
 
       {suggestions.length > 0 && (
         <div className="border border-gold-b1 bg-stone-s0 p-2">
@@ -113,13 +113,12 @@ export function SourcesSection({ game }: Props) {
             ))}
           </div>
           <Btn variant="metal" size="sm" onClick={applySuggestions}>
-            <GameIcon name="check-mark" size={12} /> Add all
+            <CheckIcon className="h-3.5 w-3.5" /> Add all
           </Btn>
         </div>
       )}
 
       <div>
-        <SectionLabel>Allowed sources · in priority order</SectionLabel>
         {effective.length === 0 ? (
           <p className="text-[13px] text-text-dim">
             No sources allowed. Add at least one below.
@@ -175,7 +174,7 @@ export function SourcesSection({ game }: Props) {
       <div>
         <SectionLabel>Excluded sources</SectionLabel>
         {exclude.length === 0 ? (
-          <p className="text-[13px] text-text-dim">None.</p>
+          <></>
         ) : (
           <div className="mb-2 flex flex-wrap gap-1.5">
             {exclude.map((d) => (

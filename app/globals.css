@@ -98,7 +98,31 @@ body {
   pointer-events: none;
   background-image: url("/textures/sidebar-pattern.webp");
   background-repeat: no-repeat;
-  background-size: 100% 100%;
+  /* Anchor the panel to the bottom of the scroll area at its own aspect ratio
+     (the asset is 1280x720). On a short session it fills the area; on a tall
+     one it sits at the bottom — near the chat input and latest messages — and
+     the rest of the column is plain stone above it. */
+  /* `cover` (not `100% auto`) so the image always fills the box anchored to the
+     bottom — it gets cropped on tall scroll areas rather than letterboxed,
+     which means there's never an internal hard top edge to seam against. The
+     bottom of the artwork (the misty ridge) stays pinned to the input. */
+  background-position: center bottom;
+  background-size: cover;
+  /* With no internal seam, a simple box-relative top fade dissolves the panel
+     smoothly into the plain stone above. Solid over the bottom ~55%, fading
+     across the top ~45%. */
+  -webkit-mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    #000 55%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    #000 55%,
+    transparent 100%
+  );
   /* Blend the pattern into the stone surface beneath rather than sitting
      on top of it. Multiply darkens where the pattern is dark and leaves
      light areas alone — gives a "carved into the wall" feel. Tune

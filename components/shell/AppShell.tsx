@@ -10,17 +10,14 @@ import { Sidebar } from "@/components/sidebar/Sidebar";
 interface Props {
   children: ReactNode;
   activePlaythroughId?: string;
-  activeSessionId?: string;
-  headerRight?: ReactNode;
 }
 
 // Layout skeleton: header bar, sidebar (drawer on mobile, fixed on desktop), main panel.
-export function AppShell({
-  children,
-  activePlaythroughId,
-  activeSessionId,
-  headerRight,
-}: Props) {
+// Rendered from the playthrough layout so it persists across session navigation.
+// Page-specific header buttons mount into the #header-actions slot via a portal
+// (see HeaderActions), and the sidebar reads the active session from the URL
+// itself — so nothing here needs per-session props that would force a re-render.
+export function AppShell({ children, activePlaythroughId }: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -51,7 +48,8 @@ export function AppShell({
             Wyrdscribe
           </span>
         </div>
-        <div className="flex items-center gap-2">{headerRight}</div>
+        {/* Portal target for page-specific header buttons (HeaderActions). */}
+        <div id="header-actions" className="flex items-center gap-2" />
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -60,10 +58,7 @@ export function AppShell({
           className="hidden w-60 shrink-0 border-r-2 border-gold-b2 md:block"
           style={stoneSurface("recessed")}
         >
-          <Sidebar
-            activePlaythroughId={activePlaythroughId}
-            activeSessionId={activeSessionId}
-          />
+          <Sidebar activePlaythroughId={activePlaythroughId} />
         </aside>
 
         {/* Mobile drawer */}
@@ -88,7 +83,6 @@ export function AppShell({
               >
                 <Sidebar
                   activePlaythroughId={activePlaythroughId}
-                  activeSessionId={activeSessionId}
                   onNavigate={() => setDrawerOpen(false)}
                   onClose={() => setDrawerOpen(false)}
                 />

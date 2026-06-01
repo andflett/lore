@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type DragEvent, type ReactNode } from "react";
+import { ChevronUpIcon, ChevronDownIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { GameIcon } from "./GameIcon";
 
 interface Props {
@@ -86,27 +87,27 @@ export function SortableListRow({
           onClick={() => !isFirst && onMove(index, index - 1)}
           disabled={isFirst}
           aria-label="Move up"
-          className="flex h-5 w-5 items-center justify-center text-gold-b3 hover:text-gold disabled:opacity-30"
+          className="flex h-5 w-5 cursor-pointer items-center justify-center text-gold-b3 hover:text-gold disabled:cursor-default disabled:opacity-30"
         >
-          <span className="text-[10px]">▴</span>
+          <ChevronUpIcon className="h-3.5 w-3.5" />
         </button>
         <button
           type="button"
           onClick={() => !isLast && onMove(index, index + 1)}
           disabled={isLast}
           aria-label="Move down"
-          className="flex h-5 w-5 items-center justify-center text-gold-b3 hover:text-gold disabled:opacity-30"
+          className="flex h-5 w-5 cursor-pointer items-center justify-center text-gold-b3 hover:text-gold disabled:cursor-default disabled:opacity-30"
         >
-          <span className="text-[10px]">▾</span>
+          <ChevronDownIcon className="h-3.5 w-3.5" />
         </button>
         {onRemove && (
           <button
             type="button"
             onClick={onRemove}
             aria-label={removeLabel ?? "Remove"}
-            className="ml-1 flex h-5 w-5 items-center justify-center text-gold-b3 hover:text-blood"
+            className="ml-1 flex h-5 w-5 cursor-pointer items-center justify-center text-gold-b3 hover:text-blood"
           >
-            <GameIcon name="cancel" size={10} />
+            <Cross2Icon className="h-3 w-3" />
           </button>
         )}
       </span>
