@@ -546,3 +546,26 @@ unlimited (one cheap call per session, no Tavily, not an abuse vector).
 **Why fetch, not `@upstash/redis`:** the REST surface we need is one pipeline
 call; a plain `fetch` (mirroring `lib/tavily.ts`) keeps the dependency count and
 the cold-start footprint down.
+
+## BYOK + model selection unified into the model picker
+
+The old split — a header "Settings" button for keys, plus a flat model list
+that let you pick Claude even with no key (silently falling back to Groq) — was
+confusing. Reworked so model choice and BYOK live in one place:
+
+- **The header Settings button is gone.** Keys are managed entirely from the
+  model picker (`ModelSwitcher` → `ApiKeysModal`), so there's a single mental
+  model: "choose your model, add a key if you want the good ones."
+- **Two tiers** (`ModelOption.tier` in `lib/models.ts`): `demo` (Groq
+  `gpt-oss-120b`, relabelled **Demo**) and `byok` (Claude Haiku/Sonnet). The
+  smaller Groq Llama model was dropped — one free demo model keeps the choice
+  legible.
+- **Anthropic rows are locked until a key is set** — greyed/disabled with an
+  inline "Add your own Anthropic key" prompt. With a key, both tiers are freely
+  selectable and there's a "Manage API keys" entry instead.
+- **Default model depends on keys** (`preferredDefaultModel`): new playthroughs
+  start on Haiku once a key exists, otherwise on the demo. Live gating reacts to
+  key changes via a `lk:userKeysChanged` window event (`setUserKeys` dispatches
+  it; `useHasAnthropicKey` listens), so saving a key unlocks Claude without a
+  reload. `DEFAULT_MODEL` stays the demo model — it's still the server-side
+  fallback for an Anthropic id with no key.

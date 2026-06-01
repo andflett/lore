@@ -5,6 +5,11 @@ export const LAST_PLAYTHROUGH_KEY = "lk:lastPlaythroughId";
 export const USER_KEYS_KEY = "lk:userKeys";
 export const CLIENT_ID_KEY = "lk:clientId";
 
+// Fired on the window whenever BYOK keys change, so live UI (the model picker's
+// Anthropic gating) can react within the same tab — the native "storage" event
+// only fires in *other* tabs.
+export const USER_KEYS_EVENT = "lk:userKeysChanged";
+
 // Stable per-browser id, generated on first use. Sent with chat requests so the
 // demo's per-identity soft cap has something to key on (best-effort — cleared
 // storage resets it; that's fine, the global kill-switch is the hard guard).
@@ -38,6 +43,13 @@ export function setUserKeys(keys: UserKeys): void {
   if (keys.anthropic?.trim()) cleaned.anthropic = keys.anthropic.trim();
   if (keys.tavily?.trim()) cleaned.tavily = keys.tavily.trim();
   localStorage.setItem(USER_KEYS_KEY, JSON.stringify(cleaned));
+  window.dispatchEvent(new Event(USER_KEYS_EVENT));
+}
+
+// True if the user has supplied their own Anthropic key — the signal that gates
+// the BYOK (Claude) models in the picker and the new-playthrough default.
+export function hasAnthropicKey(): boolean {
+  return !!getUserKeys().anthropic;
 }
 
 export function setLastPlaythrough(id: string): void {

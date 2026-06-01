@@ -6,7 +6,8 @@ import type {
   Playthrough,
   Session,
 } from "./types";
-import { DEFAULT_MODEL } from "./models";
+import { preferredDefaultModel } from "./models";
+import { hasAnthropicKey } from "./storage";
 
 export class LKDatabase extends Dexie {
   games!: Table<Game>;
@@ -87,7 +88,9 @@ export async function createPlaythrough(
     ...input,
     id: uid(),
     memory: [],
-    modelId: input.modelId ?? DEFAULT_MODEL,
+    // With a BYOK Anthropic key, fresh playthroughs start on Haiku (the
+    // recommended everyday model); otherwise on the free demo.
+    modelId: input.modelId ?? preferredDefaultModel(hasAnthropicKey()),
     createdAt: now,
     updatedAt: now,
   };
