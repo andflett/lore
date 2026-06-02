@@ -48,9 +48,9 @@ export function IntroStep({ onBegin }: Props) {
           className="font-ui text-[18px] uppercase text-text-t3"
           style={{ letterSpacing: "0.18em" }}
         >
-          Your RPG Companion
+          Your AI RPG Companion
         </h1>
-        <p className="mt-3 text-[14px] leading-relaxed text-text-t2">
+        <p className="mt-2 text-[14px] leading-relaxed text-text-t2">
           It&apos;s read every wiki so you don&apos;t have to, and it knows
           better than to spoil what&apos;s coming.
         </p>
@@ -58,7 +58,7 @@ export function IntroStep({ onBegin }: Props) {
 
       <Divider />
 
-      <ul className="mt-4 space-y-3 sm:mt-5 sm:space-y-4">
+      <ul className="mt-4 space-y-4 sm:mt-5 sm:space-y-5">
         {PILLARS.map((p) => (
           <li key={p.title} className="flex items-start gap-3">
             <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-gold-b2 bg-stone-s1 text-gold-text">

@@ -55,7 +55,7 @@ export function AppShell({ children, activePlaythroughId }: Props) {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar */}
         <aside
-          className="hidden w-60 shrink-0 border-r-2 border-gold-b2 md:block"
+          className="hidden w-72 shrink-0 border-r-2 border-gold-b2 md:block"
           style={stoneSurface("recessed")}
         >
           <Sidebar activePlaythroughId={activePlaythroughId} />
@@ -74,7 +74,7 @@ export function AppShell({ children, activePlaythroughId }: Props) {
                 onClick={() => setDrawerOpen(false)}
               />
               <motion.aside
-                className="fixed inset-y-0 left-0 z-40 w-64 border-r-2 border-gold-b2 md:hidden"
+                className="fixed inset-y-0 left-0 z-40 w-72 border-r-2 border-gold-b2 md:hidden"
                 style={stoneSurface("recessed")}
                 initial={{ x: "-100%" }}
                 animate={{ x: 0 }}

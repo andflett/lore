@@ -81,6 +81,17 @@ body {
   background: var(--color-gold-bright);
 }
 
+/* ── Swipe-to-reveal (react-swipeable-list) ─────────────────
+   The library's touchmove handler bails on non-cancelable events. Inside a
+   vertically-scrolling container the browser otherwise can't tell a horizontal
+   swipe from a vertical scroll, commits to scrolling, and the touchmove arrives
+   non-cancelable — so the swipe never reveals on touch. `pan-y` hands vertical
+   scroll to the browser while reserving horizontal gestures for the swipe,
+   keeping those touchmoves cancelable. */
+.swipeable-list-item__content {
+  touch-action: pan-y;
+}
+
 /* ── Messages ornate overlay ────────────────────────────────
    Paints a CC0 ornate pattern behind the chat messages region from
    /public/textures/sidebar-pattern.webp (stretched to fill, not tiled).

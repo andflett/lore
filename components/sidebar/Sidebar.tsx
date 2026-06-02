@@ -32,7 +32,12 @@ export function Sidebar({ activePlaythroughId, onNavigate, onClose }: Props) {
   return (
     <nav className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-2 px-4 py-3">
-        
+        <span
+          className="font-ui text-[11px] uppercase text-text-t2"
+          style={{ letterSpacing: "0.18em" }}
+        >
+          Playthroughs
+        </span>
         {onClose && (
           <IconButton radixIcon={Cross2Icon} label="Close" size="sm" onClick={onClose} />
         )}
