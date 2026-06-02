@@ -13,7 +13,7 @@ const PILLARS: Pillar[] = [
   {
     icon: "magnifying-glass",
     title: "Searches sources you choose",
-    body: "Point it at the wikis you trust. Every answer is cited, so you can check its work.",
+    body: "Point it at the sources you trust. Every answer is grounded in facts and not training data, then they are cited, so you can check its work.",
   },
   {
     icon: "open-book",
@@ -71,7 +71,7 @@ export function IntroStep({ onBegin }: Props) {
               >
                 {p.title}
               </h3>
-              <p className="mt-1 text-[13px] leading-relaxed text-text-t2">
+              <p className=" text-[13px] leading-relaxed text-text-t2">
                 {p.body}
               </p>
             </div>
