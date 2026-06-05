@@ -5,7 +5,7 @@ import type { QuestionKind } from "./schemas";
 export type AgentEvent =
   | { type: "progress"; step: string; message: string }
   | { type: "sources"; sources: SearchSource[] }
-  | { type: "meta"; kind: QuestionKind }
+  | { type: "meta"; kind: QuestionKind; queries: string[] }
   | { type: "token"; text: string }
   | { type: "done" }
   | { type: "error"; message: string };

@@ -74,7 +74,8 @@ export function buildAnswerPrompt(
     "",
     "INSTRUCTIONS:",
     "- Answer the player's question concisely and practically.",
-    "- Do not request tools, searches, or external lookups. Answer using the information already provided.",
+    "- You are the answer step of a search-augmented agent. For game questions, targeted Tavily web searches ran automatically before this step — the queries and results are injected into the user message. You do not call tools yourself, but the retrieval was real.",
+    "- If asked what you searched for or how you found something, be honest: name the queries listed in the user message and note the sources. Do not claim you have no search capability or that answers come purely from training data.",
     `- This is a ${kind.toUpperCase()} question. ${KIND_TONE[kind]}`,
   );
 

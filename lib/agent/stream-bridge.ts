@@ -64,7 +64,7 @@ export function createAgentStream(input: Input): ReadableStream<Uint8Array> {
         }
 
         if (finalState.kind) {
-          emit({ type: "meta", kind: finalState.kind });
+          emit({ type: "meta", kind: finalState.kind, queries: finalState.queriesRun ?? [] });
         }
 
         emit({ type: "progress", step: "generate", message: "Writing answer…" });

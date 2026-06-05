@@ -75,6 +75,9 @@ export interface Message {
   // whether an unsourced answer deserves a "no sources" badge (game-content
   // kinds do; meta/other don't). Optional — older messages won't have it.
   kind?: QuestionKind;
+  // Tavily queries run to produce this answer. Persisted so the model can
+  // reference them accurately in follow-up turns ("what did you search for?").
+  queries?: string[];
   timestamp: number;
 }
 

@@ -49,10 +49,22 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
     await appendMessage(session.id, { role: "user", content: query });
 
     // 2. Build prior context from already-persisted turns (excluding the one we just added).
-    const priorMessages = messages.map((m) => ({ role: m.role, content: m.content }));
+    // Enrich assistant messages with their queries and source titles so the model
+    // can accurately reference prior searches in follow-up turns.
+    const priorMessages = messages.map((m) => {
+      if (m.role !== "assistant") return { role: m.role, content: m.content };
+      const parts: string[] = [m.content];
+      if (m.queries?.length) {
+        parts.push(`\n[Searched: ${m.queries.map((q) => `"${q}"`).join(", ")}]`);
+      }
+      if (m.sources?.length) {
+        parts.push(`[Sources: ${m.sources.map((s) => `[${s.index}] ${s.title}`).join(", ")}]`);
+      }
+      return { role: m.role as "assistant", content: parts.join("\n") };
+    });
 
     try {
-      const { text: finalText, sources: finalSources, kind: finalKind } = await ask({
+      const { text: finalText, sources: finalSources, kind: finalKind, queries: finalQueries } = await ask({
         query,
         priorMessages,
         game,
@@ -68,6 +80,7 @@ export function SessionView({ game, playthrough, session, readOnly }: Props) {
           content: cleanedText,
           sources: finalSources.length ? finalSources : undefined,
           kind: finalKind ?? undefined,
+          queries: finalQueries.length ? finalQueries : undefined,
         });
         if (found.length) setProposals((p) => [...p, ...found]);
       }

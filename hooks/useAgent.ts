@@ -49,6 +49,7 @@ export interface UseAgentReturn extends UseAgentState {
     text: string;
     sources: SearchSource[];
     kind: QuestionKind | null;
+    queries: string[];
   }>;
   cancel: () => void;
   reset: () => void;
@@ -89,6 +90,7 @@ export function useAgent(): UseAgentReturn {
     let finalText = "";
     let finalSources: SearchSource[] = [];
     let finalKind: QuestionKind | null = null;
+    let finalQueries: string[] = [];
 
     try {
       const res = await fetch("/api/chat", {
@@ -114,7 +116,7 @@ export function useAgent(): UseAgentReturn {
           /* keep default */
         }
         setState((s) => ({ ...s, loading: false, limited: reason }));
-        return { text: "", sources: [], kind: null };
+        return { text: "", sources: [], kind: null, queries: [] };
       }
       if (!res.ok || !res.body) {
         throw new Error(`Request failed (${res.status})`);
@@ -155,6 +157,7 @@ export function useAgent(): UseAgentReturn {
               break;
             case "meta":
               finalKind = event.kind;
+              finalQueries = event.queries;
               setState((s) => ({ ...s, kind: event.kind }));
               break;
             case "token":
@@ -178,7 +181,7 @@ export function useAgent(): UseAgentReturn {
       abortRef.current = null;
     }
 
-    return { text: finalText, sources: finalSources, kind: finalKind };
+    return { text: finalText, sources: finalSources, kind: finalKind, queries: finalQueries };
   }, []);
 
   return { ...state, ask, cancel, reset, dismissLimit };
