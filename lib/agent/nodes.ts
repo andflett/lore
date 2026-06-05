@@ -106,7 +106,8 @@ export async function decideNode(
     "Classify the question (kind), assess spoiler risk relative to the player's current progress, and decide whether a wiki search is needed.",
     "If the player's question is a follow-up that refers back to a previous answer (\"and which is best?\", \"how do I get there?\", \"what about for a mage?\"), classify based on the full topic in context — not the bare words. A follow-up about a game subject still needs a search.",
     "If preferences mention 'blind' or 'no spoilers', be conservative: rate even minor reveals as 'minor', and story/late-game content as 'major'.",
-    "When suggesting a query, avoid keywords that would surface much-later content than the player has likely reached.",
+    `When writing a search query, ALWAYS start with the game name ("${state.game.name}") so results are scoped to the right game. e.g. "${state.game.name} essential first skills paladin" not just "essential first skills paladin".`,
+    "Avoid keywords that would surface much-later content than the player has likely reached.",
   );
 
   try {
@@ -150,7 +151,14 @@ export async function decideNode(
 export async function searchNode(
   state: AgentStateType,
 ): Promise<Partial<AgentStateType>> {
-  const baseQuery = state.nextQuery ?? state.query;
+  const rawQuery = state.nextQuery ?? state.query;
+  // Guarantee the game name is in every Tavily query. The LLM is instructed to
+  // include it but may omit it on generic follow-ups ("what's best?"), which
+  // causes cross-game pollution (Skyrim results for a Diablo 4 question).
+  const gameName = state.game.name;
+  const baseQuery = rawQuery.toLowerCase().includes(gameName.toLowerCase())
+    ? rawQuery
+    : `${gameName} ${rawQuery}`;
   // A factual pass targets the definitional wiki page: drop opinion domains and
   // shape toward "what it does" instead of "what people recommend".
   const factual = state.nextQueryIsFactual;
