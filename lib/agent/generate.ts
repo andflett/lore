@@ -23,9 +23,14 @@ export function streamAnswer(
     .map((r) => `[${r.index}] ${r.title} (${r.url})\n${r.content}`)
     .join("\n\n---\n\n");
 
+  const queriesLine =
+    state.queriesRun.length > 0
+      ? `Searched: ${state.queriesRun.map((q) => `"${q}"`).join(", ")}\n\n`
+      : "";
+
   const userContent =
     state.results.length > 0
-      ? `${state.query}\n\nSearch results to cite with [n]:\n${context}`
+      ? `${state.query}\n\n${queriesLine}Search results to cite with [n]:\n${context}`
       : state.query;
 
   const system = buildAnswerPrompt(state.game, state.playthrough, {
